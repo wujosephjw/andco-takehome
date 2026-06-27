@@ -41,7 +41,7 @@ export function ActivityTimeline({
               <span
                 className={`z-10 mt-1.5 size-2.5 rounded-full border ${
                   i === 0
-                    ? "border-white/70 bg-dot-needs"
+                    ? "border-white/70 bg-ink"
                     : "border-white/70 bg-glass-strong"
                 }`}
                 aria-hidden

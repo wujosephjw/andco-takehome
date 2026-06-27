@@ -4,14 +4,19 @@ import { BUCKET_LABEL } from "@/lib/bucket";
 import { categoryLabel } from "@/lib/tokens";
 import { StatusDot } from "./StatusDot";
 import { Button } from "./Button";
-import { Plus, Search } from "./icons";
+import { CategoryIcon, Plus, Search } from "./icons";
 
 const STATUS_BUCKETS: Bucket[] = ["needs_you", "in_flight", "done", "draft"];
-const CAT_SWATCH: Record<Category, string> = {
-  medical: "bg-dot-flight",
-  insurance: "bg-dot-flight",
-  police: "bg-dot-done",
-};
+
+/** Compact monogram from the matter name, ignoring "v.", "vs", "x", "&" connectors. */
+function matterInitials(name: string): string {
+  const parties = name
+    .split(/\s+/)
+    .filter((w) => w && !/^(v\.?|vs\.?|x|&|and)$/i.test(w));
+  const picked = (parties.length ? parties : name.split(/\s+/)).slice(0, 2);
+  const initials = picked.map((w) => w[0]?.toUpperCase() ?? "").join("");
+  return initials || name.slice(0, 1).toUpperCase();
+}
 
 function NavItem({
   active,
@@ -62,8 +67,8 @@ export function CaseRail({
     <aside className="hidden min-h-0 flex-col border-r border-white/60 bg-white/18 backdrop-blur-3xl lg:flex">
       <div className="px-5 pb-4 pt-5">
         <div className="flex items-center gap-2.5">
-          <span className="liquid-control grid size-8 shrink-0 place-items-center rounded-full border border-white/70 bg-glass-strong text-ink shadow-rest">
-            <span className="size-2.5 rounded-full bg-dot-needs" aria-hidden />
+          <span className="liquid-control grid size-8 shrink-0 place-items-center rounded-full border border-white/70 bg-glass-strong text-[12px] font-semibold tracking-tight text-ink shadow-rest">
+            {matterInitials(caseData.matterName)}
           </span>
           <div className="min-w-0">
             <p className="truncate text-body font-medium text-ink">{caseData.matterName}</p>
@@ -110,7 +115,7 @@ export function CaseRail({
             onClick={() => onSetFilter({ category: filter.category === c ? null : c })}
             count={byCategory[c]}
           >
-            <span className={`size-2 rounded-[2px] ${CAT_SWATCH[c]}`} aria-hidden />
+            <CategoryIcon category={c} className="size-3.5 text-ink-faint" />
             {categoryLabel[c]}
           </NavItem>
         ))}

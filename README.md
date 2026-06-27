@@ -7,9 +7,6 @@ what needs me right now?**
 **Live:** https://andco-takehome.vercel.app
 &nbsp;·&nbsp; React 19 · Next.js 16 (App Router, static export) · TypeScript (strict) · Tailwind v4
 
-> Use the **Preview: Live / Loading / Empty** switch in the top-right to see all
-> three top-level view states. It's a review aid, kept visually quiet.
-
 ## Run it
 
 ```bash

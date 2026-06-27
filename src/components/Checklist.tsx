@@ -64,7 +64,7 @@ function ActionCard({ r, selectedId, onOpen, onResolve, onFollowUp }: { r: Reque
           <Button variant="ghost" onClick={(e) => (e.stopPropagation(), onFollowUp(r.id))}>
             Follow up
           </Button>
-          <Button onClick={(e) => (e.stopPropagation(), onResolve(r.id))}>{resolveLabelFor(r)}</Button>
+          <Button variant="secondary" onClick={(e) => (e.stopPropagation(), onResolve(r.id))}>{resolveLabelFor(r)}</Button>
         </span>
       </div>
     </div>

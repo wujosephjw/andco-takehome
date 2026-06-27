@@ -1,9 +1,11 @@
 import type { ButtonHTMLAttributes } from "react";
 
-type Variant = "primary" | "ghost";
+type Variant = "primary" | "secondary" | "ghost";
 
 const VARIANT: Record<Variant, string> = {
   primary: "border border-black/80 bg-brand text-brand-onfill shadow-rest hover:bg-brand-hover",
+  secondary:
+    "border border-ink/20 bg-glass-strong text-ink shadow-rest hover:border-ink/35 hover:bg-white/82",
   ghost:
     "border border-white/75 bg-glass-strong text-ink-muted shadow-rest hover:border-white/90 hover:bg-white/78 hover:text-ink",
 };

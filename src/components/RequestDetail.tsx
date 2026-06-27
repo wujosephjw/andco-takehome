@@ -96,8 +96,9 @@ function Footer({
 export function RequestDetail({
   request,
   onClose,
+  isPreview,
   ...handlers
-}: { request: Request; onClose?: () => void } & DetailHandlers) {
+}: { request: Request; onClose?: () => void; isPreview?: boolean } & DetailHandlers) {
   const p = progress(request);
   const blocked = isBlockedOnUs(request);
 
@@ -105,6 +106,11 @@ export function RequestDetail({
     <div className="flex h-full flex-col">
       <div className="flex items-start justify-between gap-3 border-b border-white/60 bg-white/14 px-5 py-5 backdrop-blur-2xl">
         <div className="min-w-0">
+          {isPreview && (
+            <p className="mb-1.5 text-label font-medium uppercase tracking-[0.08em] text-ink-faint">
+              Most urgent
+            </p>
+          )}
           <div className="mb-2 flex items-center gap-2">
             <StatusBadge status={request.status} />
             <CategoryTag category={request.category} showLabel />

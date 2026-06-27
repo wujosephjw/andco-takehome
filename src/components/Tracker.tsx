@@ -92,7 +92,10 @@ export function Tracker() {
   const selected = requests.find((r) => r.id === state.selectedId) ?? null;
   // The pane always shows something useful: the explicit selection, else the most urgent item.
   const paneRequest = selected ?? selectNeedsYou(requests, TODAY)[0] ?? requests[0] ?? null;
-  const highlightId = selected?.id ?? paneRequest?.id ?? null;
+  // Only an explicit click marks the list. The fallback is a preview (labeled in the
+  // pane), not a selection — so nothing reads as "selected" until you actually choose.
+  const highlightId = selected?.id ?? null;
+  const isPreview = !selected && paneRequest !== null;
 
   const noData = !showLoading && requests.length === 0;
   const filteredEmpty = !showLoading && requests.length > 0 && groups.length === 0;
@@ -154,7 +157,7 @@ export function Tracker() {
             />
           )}
 
-          <DetailPane request={showLoading ? null : paneRequest} {...detailHandlers} />
+          <DetailPane request={showLoading ? null : paneRequest} isPreview={isPreview} {...detailHandlers} />
         </div>
       </main>
 

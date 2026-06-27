@@ -129,7 +129,7 @@ export function CaseRail({
       </nav>
 
       <div className="space-y-3 border-t border-white/60 bg-white/12 px-4 py-4 backdrop-blur-2xl">
-        <Button className="w-full">
+        <Button variant="ghost" className="w-full">
           <Plus className="size-4" />
           New request
         </Button>

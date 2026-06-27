@@ -27,14 +27,19 @@ type RowHandlers = {
 /* ── Action-needed card (needs_you) ───────────────────────────────── */
 function ActionCard({ r, selectedId, onOpen, onResolve, onFollowUp }: { r: Request } & RowHandlers) {
   const selected = r.id === selectedId;
+  const dimmed = selectedId !== null && !selected;
   return (
     <div
       role="button"
       tabIndex={0}
       onClick={() => onOpen(r.id)}
       onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), onOpen(r.id))}
-      className={`liquid-surface min-w-0 cursor-pointer rounded-[22px] border border-white/70 bg-white/64 p-4 shadow-card hover:border-white/90 hover:bg-white/74 ${
-        selected ? "bg-white/82 shadow-lift ring-1 ring-brand/55" : ""
+      className={`liquid-surface min-w-0 cursor-pointer rounded-[22px] border p-4 shadow-card ${
+        selected
+          ? "border-white/90 bg-white/90"
+          : dimmed
+            ? "border-white/70 bg-white/64 opacity-65 hover:border-white/90 hover:bg-white/74 hover:opacity-100"
+            : "border-white/70 bg-white/64 hover:border-white/90 hover:bg-white/74"
       }`}
     >
       <div className="flex items-start justify-between gap-3">
@@ -74,12 +79,17 @@ function ActionCard({ r, selectedId, onOpen, onResolve, onFollowUp }: { r: Reque
 /* ── In-progress / draft row ──────────────────────────────────────── */
 function RequestRow({ r, bucket, selectedId, onOpen }: { r: Request; bucket: Bucket } & Pick<RowHandlers, "selectedId" | "onOpen">) {
   const selected = r.id === selectedId;
+  const dimmed = selectedId !== null && !selected;
   return (
     <button
       type="button"
       onClick={() => onOpen(r.id)}
       className={`liquid-row flex min-h-16 w-full items-center gap-3 px-4 py-3 text-left ${
-        selected ? "bg-white/66 shadow-rest ring-1 ring-white/60" : "hover:text-ink"
+        selected
+          ? "bg-white/74 shadow-rest"
+          : dimmed
+            ? "opacity-65 hover:text-ink hover:opacity-100"
+            : "hover:text-ink"
       }`}
     >
       <StatusDot bucket={bucket} />
@@ -101,12 +111,17 @@ function RequestRow({ r, bucket, selectedId, onOpen }: { r: Request; bucket: Buc
 /* ── Collected chip (done) ────────────────────────────────────────── */
 function CollectedChip({ r, selectedId, onOpen }: { r: Request } & Pick<RowHandlers, "selectedId" | "onOpen">) {
   const selected = r.id === selectedId;
+  const dimmed = selectedId !== null && !selected;
   return (
     <button
       type="button"
       onClick={() => onOpen(r.id)}
-      className={`liquid-control inline-flex items-center gap-2.5 rounded-full border border-white/55 bg-glass-strong py-2 pl-2.5 pr-3 shadow-rest hover:border-white/78 hover:bg-white/64 ${
-        selected ? "ring-1 ring-brand/55" : ""
+      className={`liquid-row inline-flex items-center gap-2.5 rounded-full border py-2 pl-2.5 pr-3 shadow-rest ${
+        selected
+          ? "border-white/80 bg-white/80"
+          : dimmed
+            ? "border-white/55 bg-glass-strong opacity-65 hover:border-white/78 hover:bg-white/64 hover:opacity-100"
+            : "border-white/55 bg-glass-strong hover:border-white/78 hover:bg-white/64"
       }`}
     >
       <span className="grid size-5 place-items-center rounded-full border border-white/70 bg-white/70 text-ink-muted">

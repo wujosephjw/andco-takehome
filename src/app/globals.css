@@ -6,12 +6,15 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
-  --color-paper: #e8eceb;
+  --color-paper: #d3d6d6;
   --color-surface: #f7f8f7;
   --color-surface-hover: #e7ecea;
   --color-sunk: #dde3e1;
-  --color-glass: rgba(255, 255, 255, 0.44);
-  --color-glass-strong: rgba(255, 255, 255, 0.68);
+  /* Glass fills — a deliberate translucency ladder so layers read as depth:
+     panel (most see-through) → card → control. Kept low so the backdrop blur
+     and the gradient rim do the work, not an opaque white fill. */
+  --color-glass: rgba(255, 255, 255, 0.34);
+  --color-glass-strong: rgba(255, 255, 255, 0.52);
   --color-ink: #111111;
   --color-ink-muted: #5f6261;
   --color-ink-faint: #949897;
@@ -76,13 +79,13 @@
   --radius-lg: 1rem;
   --radius-xl: 1.375rem;
 
-  --shadow-rest: 0 1px 2px rgba(17, 17, 17, 0.045), inset 0 1px rgba(255, 255, 255, 0.72);
-  --shadow-card: 0 12px 38px rgba(17, 17, 17, 0.085), inset 0 1px rgba(255, 255, 255, 0.78), inset 0 -1px rgba(17, 17, 17, 0.04);
-  --shadow-lift: 0 20px 58px rgba(17, 17, 17, 0.14), inset 0 1px rgba(255, 255, 255, 0.9), inset 0 -1px rgba(17, 17, 17, 0.045);
-  --shadow-row-hover: 0 10px 28px rgba(17, 17, 17, 0.085), inset 0 1px rgba(255, 255, 255, 0.84), inset 0 -1px rgba(17, 17, 17, 0.045);
-  --shadow-window: 0 36px 118px rgba(74, 80, 78, 0.25), inset 0 1px rgba(255, 255, 255, 0.86), inset 0 -1px rgba(17, 17, 17, 0.04);
-  --shadow-drawer: -12px 0 46px rgba(17, 17, 17, 0.16), inset 1px 0 rgba(255, 255, 255, 0.68);
-  --shadow-toast: 0 14px 40px rgba(17, 17, 17, 0.22);
+  --shadow-rest: 0 1px 2px rgba(17, 17, 17, 0.05), inset 0 1px rgba(255, 255, 255, 0.78);
+  --shadow-card: 0 16px 44px -8px rgba(24, 28, 30, 0.16), 0 3px 10px rgba(24, 28, 30, 0.06), inset 0 1px rgba(255, 255, 255, 0.85);
+  --shadow-lift: 0 26px 64px -10px rgba(24, 28, 30, 0.24), 0 6px 16px rgba(24, 28, 30, 0.1), inset 0 1px rgba(255, 255, 255, 0.95);
+  --shadow-row-hover: 0 12px 30px -6px rgba(24, 28, 30, 0.16), inset 0 1px rgba(255, 255, 255, 0.85);
+  --shadow-window: 0 50px 130px -24px rgba(34, 40, 42, 0.42), 0 18px 48px -20px rgba(34, 40, 42, 0.24), inset 0 1px rgba(255, 255, 255, 0.92);
+  --shadow-drawer: -16px 0 54px rgba(17, 17, 17, 0.2), inset 1px 0 rgba(255, 255, 255, 0.72);
+  --shadow-toast: 0 18px 44px rgba(17, 17, 17, 0.28), inset 0 1px rgba(255, 255, 255, 0.16);
 
   --ease-liquid: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
@@ -102,10 +105,15 @@
   html {
     background-color: var(--color-paper);
   }
+  /* A grey "studio" stage: a bright bloom up top + a second glint upper-right
+     give the glass a light source to refract; the base darkens toward the
+     lower edges so floating panels read with real depth. */
   body {
     background:
-      linear-gradient(145deg, rgba(255, 255, 255, 0.84), rgba(221, 230, 227, 0.58) 42%, rgba(247, 242, 230, 0.62)),
-      linear-gradient(90deg, rgba(210, 222, 220, 0.7), rgba(243, 244, 239, 0.62) 52%, rgba(229, 235, 233, 0.8));
+      radial-gradient(128% 90% at 50% -14%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0) 46%),
+      radial-gradient(78% 58% at 85% 4%, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0) 42%),
+      radial-gradient(160% 140% at 50% 126%, rgba(190, 193, 194, 0.2), rgba(190, 193, 194, 0) 56%),
+      linear-gradient(168deg, #ebeded 0%, #e2e4e4 40%, #d9dcdc 74%, #d1d4d4 100%);
     background-color: var(--color-paper);
     background-attachment: fixed;
     color: var(--color-ink);
@@ -124,13 +132,51 @@
 }
 
 @layer components {
+  /* ── The liquid-glass rim ──────────────────────────────────────────────
+     A true 1px+ border band (drawn with mask-composite so only the edge
+     paints) whose brightness travels around the perimeter — bright at the
+     top-left and bottom-right corners, faint along the others. This is the
+     specular "light catching the edge" highlight that reads as real glass.
+     Shared by every glass tier; thickness/intensity vary per tier below. */
+  .liquid-frame::after,
+  .liquid-surface::after,
+  .liquid-control::after,
+  .liquid-row::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    padding: 1.25px;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.95) 0%,
+      rgba(255, 255, 255, 0.5) 13%,
+      rgba(255, 255, 255, 0.08) 35%,
+      rgba(255, 255, 255, 0.03) 57%,
+      rgba(255, 255, 255, 0.26) 79%,
+      rgba(255, 255, 255, 0.82) 100%
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    transition: filter 360ms var(--ease-liquid), opacity 360ms var(--ease-liquid);
+  }
+
+  /* ── Tier 1: the window frame (most translucent, deepest blur) ───────── */
   .liquid-frame {
     position: relative;
     overflow: hidden;
     transform: translateZ(0);
     background-clip: padding-box;
-    backdrop-filter: blur(44px) saturate(1.28) brightness(1.02);
-    -webkit-backdrop-filter: blur(44px) saturate(1.28) brightness(1.02);
+    backdrop-filter: blur(48px) saturate(1.4) brightness(1.04);
+    -webkit-backdrop-filter: blur(48px) saturate(1.4) brightness(1.04);
   }
 
   .liquid-frame::before {
@@ -140,22 +186,19 @@
     z-index: 0;
     pointer-events: none;
     border-radius: inherit;
-    background:
-      linear-gradient(150deg, rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.2) 38%, rgba(255, 255, 255, 0.04) 72%),
-      linear-gradient(0deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
-    opacity: 0.82;
+    background: linear-gradient(
+      156deg,
+      rgba(255, 255, 255, 0.6) 0%,
+      rgba(255, 255, 255, 0.16) 26%,
+      rgba(255, 255, 255, 0) 52%
+    );
+    box-shadow: inset 0 -56px 90px -60px rgba(17, 17, 17, 0.1);
+    opacity: 0.92;
   }
 
   .liquid-frame::after {
-    content: "";
-    position: absolute;
-    inset: 1px;
-    z-index: 0;
-    pointer-events: none;
-    border-radius: inherit;
-    box-shadow:
-      inset 0 0 0 1px rgba(255, 255, 255, 0.38),
-      inset 0 -26px 58px rgba(17, 17, 17, 0.025);
+    padding: 1.5px;
+    z-index: 2;
   }
 
   .liquid-frame > * {
@@ -163,13 +206,14 @@
     z-index: 1;
   }
 
+  /* ── Tier 2: cards / surfaces ────────────────────────────────────────── */
   .liquid-surface {
     position: relative;
     overflow: hidden;
     transform: translateZ(0);
     background-clip: padding-box;
-    backdrop-filter: blur(32px) saturate(1.24) brightness(1.02);
-    -webkit-backdrop-filter: blur(32px) saturate(1.24) brightness(1.02);
+    backdrop-filter: blur(34px) saturate(1.3) brightness(1.03);
+    -webkit-backdrop-filter: blur(34px) saturate(1.3) brightness(1.03);
     transition:
       transform 420ms var(--ease-liquid),
       background-color 420ms var(--ease-liquid),
@@ -185,25 +229,15 @@
     z-index: 0;
     pointer-events: none;
     border-radius: inherit;
-    background:
-      linear-gradient(145deg, rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.12) 42%, rgba(255, 255, 255, 0.02) 72%),
-      linear-gradient(0deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0));
-    opacity: 0.64;
-    transition: opacity 420ms var(--ease-liquid), transform 520ms var(--ease-liquid);
-  }
-
-  .liquid-surface::after {
-    content: "";
-    position: absolute;
-    inset: 1px;
-    z-index: 0;
-    pointer-events: none;
-    border-radius: inherit;
-    box-shadow:
-      inset 0 0 0 1px rgba(255, 255, 255, 0.34),
-      inset 0 -18px 38px rgba(17, 17, 17, 0.022);
+    background: linear-gradient(
+      150deg,
+      rgba(255, 255, 255, 0.55) 0%,
+      rgba(255, 255, 255, 0.12) 23%,
+      rgba(255, 255, 255, 0) 47%
+    );
+    box-shadow: inset 0 -28px 50px -34px rgba(17, 17, 17, 0.1);
     opacity: 0.9;
-    transition: opacity 420ms var(--ease-liquid);
+    transition: opacity 420ms var(--ease-liquid), transform 520ms var(--ease-liquid);
   }
 
   .liquid-surface > * {
@@ -213,24 +247,24 @@
 
   .liquid-surface:hover {
     transform: translateY(-2px) scale(1.003);
-    border-color: rgba(255, 255, 255, 0.9);
     box-shadow: var(--shadow-lift);
   }
 
   .liquid-surface:hover::before {
-    opacity: 0.92;
+    opacity: 1;
     transform: translate3d(1.5%, -1.5%, 0);
   }
 
   .liquid-surface:hover::after {
-    opacity: 1;
+    filter: brightness(1.2) saturate(1.05);
   }
 
+  /* ── Tier 3: controls (buttons, pills, chips) ────────────────────────── */
   .liquid-control {
     position: relative;
     transform: translateZ(0);
-    backdrop-filter: blur(22px) saturate(1.12);
-    -webkit-backdrop-filter: blur(22px) saturate(1.12);
+    backdrop-filter: blur(22px) saturate(1.2);
+    -webkit-backdrop-filter: blur(22px) saturate(1.2);
     transition:
       transform 360ms var(--ease-liquid),
       background-color 360ms var(--ease-liquid),
@@ -242,8 +276,11 @@
 
   .liquid-control:hover {
     transform: translateY(-1px) scale(1.015);
-    border-color: rgba(255, 255, 255, 0.92);
-    box-shadow: 0 10px 28px rgba(17, 17, 17, 0.1), inset 0 1px rgba(255, 255, 255, 0.82);
+    box-shadow: 0 12px 30px -8px rgba(24, 28, 30, 0.18), inset 0 1px rgba(255, 255, 255, 0.85);
+  }
+
+  .liquid-control:hover::after {
+    filter: brightness(1.22);
   }
 
   .liquid-control:active {
@@ -251,13 +288,14 @@
     transition-duration: 120ms;
   }
 
+  /* ── Tier 4: list rows (hover-revealed glass fill) ───────────────────── */
   .liquid-row {
     position: relative;
     isolation: isolate;
     overflow: hidden;
     transform: translateZ(0);
-    backdrop-filter: blur(16px) saturate(1.12);
-    -webkit-backdrop-filter: blur(16px) saturate(1.12);
+    backdrop-filter: blur(16px) saturate(1.14);
+    -webkit-backdrop-filter: blur(16px) saturate(1.14);
     transition:
       transform 360ms var(--ease-liquid),
       background-color 360ms var(--ease-liquid),
@@ -272,15 +310,22 @@
     z-index: -1;
     pointer-events: none;
     border-radius: inherit;
-    background:
-      linear-gradient(90deg, rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.64) 58%, rgba(255, 255, 255, 0.5)),
-      linear-gradient(0deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0));
+    background: linear-gradient(
+      100deg,
+      rgba(255, 255, 255, 0.62),
+      rgba(255, 255, 255, 0.4) 60%,
+      rgba(255, 255, 255, 0.32)
+    );
     box-shadow:
-      inset 0 0 0 1px rgba(255, 255, 255, 0.58),
-      inset 0 1px rgba(255, 255, 255, 0.78),
+      inset 0 1px rgba(255, 255, 255, 0.72),
       inset 0 -1px rgba(17, 17, 17, 0.04);
     opacity: 0;
     transition: opacity 320ms var(--ease-liquid), transform 420ms var(--ease-liquid);
+  }
+
+  /* The rim stays subtle at rest on rows, blooming on hover. */
+  .liquid-row::after {
+    opacity: 0;
   }
 
   .liquid-row:hover {
@@ -291,6 +336,11 @@
   .liquid-row:hover::before {
     opacity: 1;
     transform: scaleX(0.995);
+  }
+
+  .liquid-row:hover::after {
+    opacity: 1;
+    filter: brightness(1.15);
   }
 
   .liquid-row:active {

@@ -33,8 +33,8 @@ function ActionCard({ r, selectedId, onOpen, onResolve, onFollowUp }: { r: Reque
       tabIndex={0}
       onClick={() => onOpen(r.id)}
       onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), onOpen(r.id))}
-      className={`liquid-surface min-w-0 cursor-pointer rounded-[22px] border border-white/75 bg-glass-strong p-4 shadow-card hover:border-white/90 hover:bg-white/82 ${
-        selected ? "bg-white/84 shadow-lift ring-1 ring-brand/65" : ""
+      className={`liquid-surface min-w-0 cursor-pointer rounded-[22px] border border-white/70 bg-white/64 p-4 shadow-card hover:border-white/90 hover:bg-white/74 ${
+        selected ? "bg-white/82 shadow-lift ring-1 ring-brand/55" : ""
       }`}
     >
       <div className="flex items-start justify-between gap-3">
@@ -49,7 +49,7 @@ function ActionCard({ r, selectedId, onOpen, onResolve, onFollowUp }: { r: Reque
       </div>
 
       {r.attentionReason && (
-        <p className="mt-3 rounded-2xl border border-white/60 bg-white/42 px-3 py-2 text-body text-ink-muted">
+        <p className="mt-3 rounded-2xl border border-white/45 bg-white/30 px-3 py-2 text-body text-ink-muted">
           {r.attentionReason}
         </p>
       )}
@@ -79,7 +79,7 @@ function RequestRow({ r, bucket, selectedId, onOpen }: { r: Request; bucket: Buc
       type="button"
       onClick={() => onOpen(r.id)}
       className={`liquid-row flex min-h-16 w-full items-center gap-3 px-4 py-3 text-left ${
-        selected ? "bg-white/82 shadow-rest ring-1 ring-white/70" : "hover:bg-white/76 hover:text-ink"
+        selected ? "bg-white/66 shadow-rest ring-1 ring-white/60" : "hover:text-ink"
       }`}
     >
       <StatusDot bucket={bucket} />
@@ -105,8 +105,8 @@ function CollectedChip({ r, selectedId, onOpen }: { r: Request } & Pick<RowHandl
     <button
       type="button"
       onClick={() => onOpen(r.id)}
-      className={`liquid-control inline-flex items-center gap-2.5 rounded-full border border-white/75 bg-glass-strong py-2 pl-2.5 pr-3 shadow-rest hover:border-white/90 hover:bg-white/78 ${
-        selected ? "ring-1 ring-brand/65" : ""
+      className={`liquid-control inline-flex items-center gap-2.5 rounded-full border border-white/55 bg-glass-strong py-2 pl-2.5 pr-3 shadow-rest hover:border-white/78 hover:bg-white/64 ${
+        selected ? "ring-1 ring-brand/55" : ""
       }`}
     >
       <span className="grid size-5 place-items-center rounded-full border border-white/70 bg-white/70 text-ink-muted">
@@ -146,7 +146,7 @@ function GroupSection({ group, handlers }: { group: Group; handlers: RowHandlers
           ))}
         </div>
       ) : (
-        <div className="liquid-surface divide-y divide-hairline overflow-hidden rounded-[22px] border border-white/75 bg-white/50 shadow-card">
+        <div className="liquid-surface divide-y divide-hairline overflow-hidden rounded-[22px] border border-white/42 bg-white/30 shadow-rest">
           {items.map((r) => (
             <RequestRow key={r.id} r={r} bucket={bucket} selectedId={handlers.selectedId} onOpen={handlers.onOpen} />
           ))}
@@ -178,7 +178,7 @@ function MobilePills({
             type="button"
             onClick={() => onSetFilter({ bucket: b })}
             className={`liquid-control inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-meta font-medium shadow-rest ${
-              active ? "border-white/90 bg-white/82 text-ink" : "border-white/70 bg-glass-strong text-ink-muted hover:bg-white/74"
+              active ? "border-white/80 bg-white/70 text-ink" : "border-white/55 bg-glass-strong text-ink-muted hover:bg-white/62"
             }`}
           >
             {b && <StatusDot bucket={b} />}

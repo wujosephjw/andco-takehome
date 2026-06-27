@@ -6,7 +6,6 @@ import { StatusDot } from "./StatusDot";
 import { CategoryPill } from "./CategoryPill";
 import { DueLabel } from "./DueLabel";
 import { AssigneeChip } from "./Avatar";
-import { ProgressMeter } from "./ProgressMeter";
 import { Button } from "./Button";
 import { EmptyState } from "./EmptyState";
 import { Check } from "./icons";
@@ -34,7 +33,7 @@ function ActionCard({ r, selectedId, onOpen, onResolve, onFollowUp }: { r: Reque
       tabIndex={0}
       onClick={() => onOpen(r.id)}
       onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), onOpen(r.id))}
-      className={`cursor-pointer rounded-[22px] border border-white/70 bg-glass-strong p-4 shadow-card backdrop-blur-xl transition hover:bg-white/75 hover:shadow-lift ${
+      className={`liquid-surface cursor-pointer rounded-[22px] border border-white/70 bg-glass-strong p-4 shadow-card hover:bg-white/75 ${
         selected ? "ring-2 ring-brand/80" : ""
       }`}
     >
@@ -79,17 +78,14 @@ function RequestRow({ r, bucket, selectedId, onOpen }: { r: Request; bucket: Buc
     <button
       type="button"
       onClick={() => onOpen(r.id)}
-      className={`flex min-h-16 w-full items-center gap-3 px-4 py-3 text-left transition-colors ${
-        selected ? "bg-white/78" : "hover:bg-white/55"
+      className={`liquid-row flex min-h-16 w-full items-center gap-3 px-4 py-3 text-left ${
+        selected ? "bg-white/78 shadow-rest" : "hover:bg-white/58"
       }`}
     >
       <StatusDot bucket={bucket} />
       <span className="min-w-0 flex-1">
         <span className="block truncate text-row font-medium text-ink">{r.documentType}</span>
         <span className="block truncate text-meta text-ink-muted">{r.source}</span>
-      </span>
-      <span className="hidden md:block">
-        <ProgressMeter request={r} />
       </span>
       <CategoryPill category={r.category} className="hidden sm:inline-flex" />
       <span className="w-[112px] shrink-0 text-right">
@@ -109,7 +105,7 @@ function CollectedChip({ r, selectedId, onOpen }: { r: Request } & Pick<RowHandl
     <button
       type="button"
       onClick={() => onOpen(r.id)}
-      className={`inline-flex items-center gap-2.5 rounded-full border border-white/70 bg-glass-strong py-2 pl-2.5 pr-3 shadow-rest backdrop-blur-xl transition hover:bg-white/70 hover:shadow-card ${
+      className={`liquid-control inline-flex items-center gap-2.5 rounded-full border border-white/70 bg-glass-strong py-2 pl-2.5 pr-3 shadow-rest hover:bg-white/70 ${
         selected ? "ring-2 ring-brand/80" : ""
       }`}
     >
@@ -117,11 +113,6 @@ function CollectedChip({ r, selectedId, onOpen }: { r: Request } & Pick<RowHandl
         <Check className="size-3" />
       </span>
       <span className="text-meta font-medium text-ink">{r.documentType}</span>
-      {r.pagesExpected != null && (
-        <span className="text-meta tnum font-mono text-ink-faint">
-          {r.pagesReceived ?? 0}/{r.pagesExpected}
-        </span>
-      )}
       <CategoryPill category={r.category} />
     </button>
   );
@@ -135,7 +126,7 @@ function GroupSection({ group, handlers }: { group: Group; handlers: RowHandlers
       <header className="mb-3 flex items-center gap-2.5 px-1">
         <StatusDot bucket={bucket} />
         <h2 className="text-body font-medium text-ink">{label}</h2>
-        <span className="rounded-full border border-white/70 bg-glass-strong px-2 py-0.5 text-badge font-medium text-ink-muted shadow-rest">
+        <span className="liquid-control rounded-full border border-white/70 bg-glass-strong px-2 py-0.5 text-badge font-medium text-ink-muted shadow-rest">
           {items.length}
         </span>
         <span className="h-px flex-1 bg-hairline" />
@@ -155,7 +146,7 @@ function GroupSection({ group, handlers }: { group: Group; handlers: RowHandlers
           ))}
         </div>
       ) : (
-        <div className="divide-y divide-hairline overflow-hidden rounded-[22px] border border-white/70 bg-glass-strong shadow-card backdrop-blur-xl">
+        <div className="liquid-surface divide-y divide-hairline overflow-hidden rounded-[22px] border border-white/70 bg-glass-strong shadow-card">
           {items.map((r) => (
             <RequestRow key={r.id} r={r} bucket={bucket} selectedId={handlers.selectedId} onOpen={handlers.onOpen} />
           ))}
@@ -186,7 +177,7 @@ function MobilePills({
             key={b ?? "all"}
             type="button"
             onClick={() => onSetFilter({ bucket: b })}
-            className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-meta font-medium shadow-rest transition-colors ${
+            className={`liquid-control inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-meta font-medium shadow-rest ${
               active ? "border-white/80 bg-white/80 text-ink" : "border-white/60 bg-glass-strong text-ink-muted"
             }`}
           >
@@ -245,7 +236,7 @@ export function Checklist({
             <select
               value={sort}
               onChange={(e) => onSetSort(e.target.value as SortKey)}
-              className="h-9 rounded-full border border-white/70 bg-glass-strong px-3 text-meta text-ink shadow-rest backdrop-blur-xl"
+              className="liquid-control h-9 rounded-full border border-white/70 bg-glass-strong px-3 text-meta text-ink shadow-rest"
             >
               {SORTS.map((s) => (
                 <option key={s.key} value={s.key}>

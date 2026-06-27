@@ -11,7 +11,7 @@ export function StatePreviewSwitcher({
   onChange: (mode: PreviewMode) => void;
 }) {
   return (
-    <div className="inline-flex w-full items-center gap-0.5 rounded-full border border-white/70 bg-glass-strong p-1 text-meta shadow-rest backdrop-blur-xl">
+    <div className="inline-flex w-full items-center gap-0.5 rounded-full border border-white/70 bg-glass-strong p-1 text-meta shadow-card backdrop-blur-2xl">
       <span className="px-2 text-ink-faint">Preview</span>
       {MODES.map((m) => (
         <button
@@ -19,7 +19,7 @@ export function StatePreviewSwitcher({
           type="button"
           onClick={() => onChange(m)}
           aria-pressed={mode === m}
-          className={`flex-1 rounded-full px-2 py-1 capitalize transition-colors ${
+          className={`liquid-control flex-1 rounded-full px-2 py-1 capitalize ${
             mode === m
               ? "bg-white/80 font-medium text-ink shadow-rest"
               : "text-ink-muted hover:bg-white/55 hover:text-ink"

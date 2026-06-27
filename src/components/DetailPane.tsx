@@ -13,7 +13,7 @@ export function DetailPane({
         <RequestDetail request={request} {...handlers} />
       ) : (
         <div className="flex h-full flex-col items-center justify-center gap-3 px-8 text-center">
-          <span className="grid size-12 place-items-center rounded-full border border-white/70 bg-glass-strong shadow-rest">
+          <span className="liquid-control grid size-12 place-items-center rounded-full border border-white/70 bg-glass-strong shadow-rest">
             <Inbox className="size-6 text-ink-faint" />
           </span>
           <p className="text-body text-ink-muted">Select a request to see its details, activity, and actions.</p>

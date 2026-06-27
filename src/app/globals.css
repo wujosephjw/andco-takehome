@@ -15,24 +15,31 @@
   --font-sans: var(--font-geist-sans);     /* Geist — all UI + data                   */
   --font-mono: var(--font-geist-mono);     /* Geist Mono — page-count fractions       */
 
-  /* Neutrals — warm paper, never pure white */
-  --color-paper: #f5f3ef;          /* app background                          */
-  --color-surface: #fbfaf7;        /* cards / rows, a hair lighter than paper */
-  --color-surface-hover: #f1efe9;  /* row hover                               */
-  --color-sunk: #efede7;           /* recessed wells, overview strip, skeleton*/
+  /* Neutrals — warm off-white page, crisp white surfaces (Legora-informed) */
+  --color-paper: #f5f4f0;          /* app background (warm off-white)         */
+  --color-surface: #ffffff;        /* crisp white cards / panels              */
+  --color-surface-hover: #f2f0ea;  /* row hover                               */
+  --color-sunk: #efede7;           /* recessed wells, skeleton                */
   --color-ink: #1a1a1a;            /* primary text                            */
   --color-ink-muted: #56544e;      /* secondary text (~7:1)                   */
   --color-ink-faint: #8a877f;      /* tertiary, non-essential only            */
   --color-hairline: #e3e0d8;       /* 1px dividers / borders                  */
   --color-hairline-strong: #d6d2c8;/* drawer edge, focused border             */
 
-  /* Sage — the one accent, used sparingly */
+  /* Sage — secondary accent (progress, done family) */
   --color-sage: #7a8c6e;
   --color-sage-hover: #6b7d60;
   --color-sage-active: #5e6f54;
   --color-sage-tint: #ecefe7;
   --color-sage-ink: #404a36;
   --color-sage-onfill: #f7f8f4;
+
+  /* Brand — forest green, primary actions + active nav (Legora-informed) */
+  --color-brand: #1d3c2e;
+  --color-brand-hover: #16301f;
+  --color-brand-tint: #e7eee9;
+  --color-brand-ink: #234534;
+  --color-brand-onfill: #f3f7f4;
 
   /* Status buckets — muted bg / border / text triplets */
   /* needs_you — warm clay (the only "loud" family, and it's restrained) */
@@ -61,10 +68,17 @@
   --color-overdue: #a23b23;
   --color-overdue-dot: #b5613a;
 
-  /* Category accents — low-chroma, never compete with status */
-  --color-cat-medical: #5b6e8c;
-  --color-cat-police: #7a6e8c;
-  --color-cat-insurance: #8c7a5b;
+  /* Category accents — colored tags on tints (Legora-informed) */
+  --color-cat-medical: #3a6ea5;     --color-cat-medical-bg: #e9f1f9;
+  --color-cat-police: #6a57a8;      --color-cat-police-bg: #eee9f7;
+  --color-cat-insurance: #a9772f;   --color-cat-insurance-bg: #f6efe1;
+
+  /* Status dots — saturated marks for the at-a-glance list */
+  --color-dot-needs: #c2410c;
+  --color-dot-flight: #c2840c;
+  --color-dot-done: #1f8a4c;
+  --color-dot-draft: #aaa69c;
+  --color-dot-closed: #c9c5bc;
 
   /* Type scale — size paired with line-height */
   --text-display: 1.75rem;     --text-display--line-height: 2.125rem;  /* 28/34 Lora */
@@ -114,9 +128,9 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
   }
-  /* Sage focus ring on every interactive element, keyboard-only */
+  /* Brand focus ring on every interactive element, keyboard-only */
   :focus-visible {
-    outline: 2px solid var(--color-sage);
+    outline: 2px solid var(--color-brand);
     outline-offset: 2px;
     border-radius: 3px;
   }

@@ -1,36 +1,41 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { caseFile } from "@/lib/fixture";
 import { TODAY } from "@/lib/clock";
+import { bucketForStatus } from "@/lib/bucket";
 import {
   selectOverview,
   selectNeedsYou,
   selectFiltered,
-  countByBucket,
-  DEFAULT_FILTER,
-  type SortKey,
   type FilterSpec,
 } from "@/lib/selectors";
+import type { Bucket, Category } from "@/lib/types";
 import { reducer, initialState, latestUndoLabel } from "@/state/reducer";
 import type { Action } from "@/state/actions";
-import { OverviewStrip } from "./OverviewStrip";
-import { NeedsYouSection } from "./NeedsYouSection";
-import { FilterSortBar } from "./FilterSortBar";
-import { RequestList } from "./RequestList";
+import { CaseRail } from "./CaseRail";
+import { Checklist, type Group } from "./Checklist";
+import { DetailPane } from "./DetailPane";
 import { DetailDrawer } from "./DetailDrawer";
-import { LoadingState } from "./LoadingState";
 import { UndoToast, type ToastState } from "./UndoToast";
-import { StatePreviewSwitcher, type PreviewMode } from "./StatePreviewSwitcher";
+import type { PreviewMode } from "./StatePreviewSwitcher";
+
+/** Group order + framing — section labels are action-framed, rail labels are bucket names. */
+const GROUP_DEF: { bucket: Bucket; label: string; hint?: string }[] = [
+  { bucket: "needs_you", label: "Action needed", hint: "Resolve to unblock the case" },
+  { bucket: "in_flight", label: "In progress", hint: "Your team is handling these" },
+  { bucket: "done", label: "Collected" },
+  { bucket: "draft", label: "Draft" },
+  { bucket: "closed", label: "Canceled" },
+];
 
 export function Tracker() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [preview, setPreview] = useState<PreviewMode>("live");
+  const [query, setQuery] = useState("");
   const [toast, setToast] = useState<ToastState | null>(null);
   const toastSeq = useRef(0);
 
-  // Load the fixture behind a short delay so the loading skeleton is real, not
-  // just a preview. In a backend-backed app this becomes a fetch + Suspense.
   useEffect(() => {
     const t = setTimeout(
       () => dispatch({ type: "LOADED", case: caseFile.case, requests: caseFile.requests }),
@@ -52,11 +57,10 @@ export function Tracker() {
   };
 
   const setFilter = (patch: Partial<FilterSpec>) => dispatch({ type: "SET_FILTER", filter: patch });
-  const setSort = (sort: SortKey) => dispatch({ type: "SET_SORT", sort });
+  const setSort = (sort: typeof state.sort) => dispatch({ type: "SET_SORT", sort });
   const open = (id: string) => dispatch({ type: "OPEN_DRAWER", id });
-  const close = useCallback(() => dispatch({ type: "CLOSE_DRAWER" }), []);
+  const close = () => dispatch({ type: "CLOSE_DRAWER" });
 
-  // Preview switcher overrides what we render without touching real state.
   const showLoading = preview === "loading" || (preview === "live" && state.phase === "loading");
   const requests = useMemo(
     () => (preview === "empty" ? [] : state.requests),
@@ -65,82 +69,120 @@ export function Tracker() {
   const caseData = state.case;
 
   const counts = useMemo(() => selectOverview(requests, TODAY), [requests]);
-  const needsYou = useMemo(() => selectNeedsYou(requests, TODAY), [requests]);
-  const byBucket = useMemo(() => countByBucket(requests), [requests]);
-  const filtered = useMemo(
-    () => selectFiltered(requests, state.filter, state.sort, TODAY),
-    [requests, state.filter, state.sort],
-  );
-  const hasCanceled = requests.some((r) => r.status === "canceled");
+  const byCategory = useMemo(() => {
+    const c: Record<Category, number> = { medical: 0, insurance: 0, police: 0 };
+    for (const r of requests) if (r.status !== "canceled") c[r.category]++;
+    return c;
+  }, [requests]);
+
+  // Filter (category + canceled + free-text) and sort, ignoring bucket — we group by bucket.
+  const visible = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const matched = q
+      ? requests.filter(
+          (r) =>
+            r.documentType.toLowerCase().includes(q) || r.source.toLowerCase().includes(q),
+        )
+      : requests;
+    return selectFiltered(matched, { ...state.filter, bucket: null }, state.sort, TODAY);
+  }, [requests, query, state.filter, state.sort]);
+
+  const groups: Group[] = useMemo(() => {
+    const wanted = state.filter.bucket;
+    return GROUP_DEF.filter((g) => !wanted || g.bucket === wanted)
+      .map((g) => ({ ...g, items: visible.filter((r) => bucketForStatus(r.status) === g.bucket) }))
+      .filter((g) => g.items.length > 0);
+  }, [visible, state.filter.bucket]);
+
   const selected = requests.find((r) => r.id === state.selectedId) ?? null;
+  // The pane always shows something useful: the explicit selection, else the most urgent item.
+  const paneRequest = selected ?? selectNeedsYou(requests, TODAY)[0] ?? requests[0] ?? null;
+  const highlightId = selected?.id ?? paneRequest?.id ?? null;
+
+  const noData = !showLoading && requests.length === 0;
+  const filteredEmpty = !showLoading && requests.length > 0 && groups.length === 0;
+
+  const detailHandlers = {
+    onResolve: (id: string) => mutate({ type: "RESOLVE_NEEDS_ACTION", id }, "Marked resolved"),
+    onMarkReceived: (id: string) => mutate({ type: "MARK_RECEIVED", id }, "Marked received"),
+    onFollowUp: (id: string) => mutate({ type: "FOLLOW_UP", id }, "Follow-up logged"),
+    onAddNote: (id: string, text: string) => mutate({ type: "ADD_NOTE", id, text }, "Note added"),
+  };
+
+  // Initial fetch (case not yet loaded): a brief neutral skeleton, no chrome to flash.
+  if (!caseData) {
+    return (
+      <main className="grid h-dvh place-items-center">
+        <div className="flex flex-col items-center gap-3" aria-busy="true" aria-label="Loading case">
+          <span className="size-7 animate-pulse rounded-full bg-sunk" />
+          <span className="text-meta text-ink-faint">Loading case…</span>
+        </div>
+      </main>
+    );
+  }
 
   return (
-    <main className="mx-auto w-full max-w-[960px] px-5 py-8 sm:px-8 sm:py-10">
-      <div className="mb-7 flex items-start justify-between gap-4">
-        {caseData ? (
-          <div>
-            <p className="text-label font-medium uppercase tracking-wide text-ink-faint">
-              Document requests
-            </p>
-            <h1 className="mt-1 font-display text-display text-ink">{caseData.matterName}</h1>
-            <p className="mt-1.5 text-meta text-ink-muted">
-              {caseData.clientName} · {caseData.matterType} · Paralegal{" "}
-              {caseData.assignedParalegal}
-            </p>
-          </div>
+    <>
+      <main className="grid h-dvh grid-cols-1 overflow-hidden lg:grid-cols-[244px_minmax(0,1fr)_400px]">
+        <CaseRail
+          caseData={caseData}
+          counts={counts}
+          byCategory={byCategory}
+          filter={state.filter}
+          query={query}
+          onQuery={setQuery}
+          onSetFilter={setFilter}
+          preview={preview}
+          onPreview={setPreview}
+        />
+
+        {showLoading ? (
+          <MiddleLoading />
         ) : (
-          <div className="space-y-2">
-            <span className="block h-3 w-24 animate-pulse rounded bg-sunk" />
-            <span className="block h-7 w-64 animate-pulse rounded bg-sunk" />
-          </div>
-        )}
-        <StatePreviewSwitcher mode={preview} onChange={setPreview} />
-      </div>
-
-      {showLoading ? (
-        <LoadingState />
-      ) : (
-        <div className="space-y-7">
-          <OverviewStrip counts={counts} />
-
-          <NeedsYouSection
-            requests={needsYou}
-            onResolve={(id) => mutate({ type: "RESOLVE_NEEDS_ACTION", id }, "Marked resolved")}
-            onFollowUp={(id) => mutate({ type: "FOLLOW_UP", id }, "Follow-up logged")}
+          <Checklist
+            caseData={caseData}
+            groups={groups}
+            filter={state.filter}
+            counts={counts}
+            sort={state.sort}
+            onSetSort={setSort}
+            onSetFilter={setFilter}
+            noData={noData}
+            filteredEmpty={filteredEmpty}
+            selectedId={highlightId}
             onOpen={open}
+            onResolve={detailHandlers.onResolve}
+            onFollowUp={detailHandlers.onFollowUp}
           />
+        )}
 
-          <section className="space-y-3">
-            <h2 className="font-display text-section text-ink">All requests</h2>
-            <FilterSortBar
-              filter={state.filter}
-              sort={state.sort}
-              byBucket={byBucket}
-              total={counts.total}
-              hasCanceled={hasCanceled}
-              onSetFilter={setFilter}
-              onSetSort={setSort}
-            />
-            <RequestList
-              requests={filtered}
-              onOpen={open}
-              filteredToZero={requests.length > 0 && filtered.length === 0}
-              onClearFilters={() => setFilter(DEFAULT_FILTER)}
-            />
-          </section>
-        </div>
-      )}
+        <DetailPane request={showLoading ? null : paneRequest} {...detailHandlers} />
+      </main>
 
-      <DetailDrawer
-        request={selected}
-        onClose={close}
-        onResolve={(id) => mutate({ type: "RESOLVE_NEEDS_ACTION", id }, "Marked resolved")}
-        onMarkReceived={(id) => mutate({ type: "MARK_RECEIVED", id }, "Marked received")}
-        onFollowUp={(id) => mutate({ type: "FOLLOW_UP", id }, "Follow-up logged")}
-        onAddNote={(id, text) => mutate({ type: "ADD_NOTE", id, text }, "Note added")}
-      />
+      {/* Mobile/tablet detail overlay — driven by the real selection only */}
+      <DetailDrawer request={selected} onClose={close} {...detailHandlers} />
 
       <UndoToast toast={toast} onUndo={undo} onDismiss={() => setToast(null)} />
-    </main>
+    </>
+  );
+}
+
+function MiddleLoading() {
+  return (
+    <section className="flex min-h-0 flex-col" aria-busy="true" aria-label="Loading requests">
+      <div className="border-b border-hairline px-6 py-4">
+        <span className="block h-5 w-44 animate-pulse rounded bg-sunk" />
+      </div>
+      <div className="space-y-6 px-6 py-6">
+        <span className="block h-4 w-28 animate-pulse rounded bg-sunk" />
+        <div className="grid gap-3 sm:grid-cols-2">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <div key={i} className="h-28 animate-pulse rounded-lg border border-hairline bg-surface" />
+          ))}
+        </div>
+        <span className="block h-4 w-24 animate-pulse rounded bg-sunk" />
+        <div className="h-44 animate-pulse rounded-lg border border-hairline bg-surface" />
+      </div>
+    </section>
   );
 }

@@ -18,7 +18,6 @@ import { Checklist, type Group } from "./Checklist";
 import { DetailPane } from "./DetailPane";
 import { DetailDrawer } from "./DetailDrawer";
 import { UndoToast, type ToastState } from "./UndoToast";
-import type { PreviewMode } from "./StatePreviewSwitcher";
 
 /** Group order + framing — section labels are action-framed, rail labels are bucket names. */
 const GROUP_DEF: { bucket: Bucket; label: string; hint?: string }[] = [
@@ -31,7 +30,6 @@ const GROUP_DEF: { bucket: Bucket; label: string; hint?: string }[] = [
 
 export function Tracker() {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const [preview, setPreview] = useState<PreviewMode>("live");
   const [query, setQuery] = useState("");
   const [toast, setToast] = useState<ToastState | null>(null);
   const toastSeq = useRef(0);
@@ -61,11 +59,8 @@ export function Tracker() {
   const open = (id: string) => dispatch({ type: "OPEN_DRAWER", id });
   const close = () => dispatch({ type: "CLOSE_DRAWER" });
 
-  const showLoading = preview === "loading" || (preview === "live" && state.phase === "loading");
-  const requests = useMemo(
-    () => (preview === "empty" ? [] : state.requests),
-    [preview, state.requests],
-  );
+  const showLoading = state.phase === "loading";
+  const requests = state.requests;
   const caseData = state.case;
 
   const counts = useMemo(() => selectOverview(requests, TODAY), [requests]);
@@ -137,8 +132,6 @@ export function Tracker() {
             query={query}
             onQuery={setQuery}
             onSetFilter={setFilter}
-            preview={preview}
-            onPreview={setPreview}
           />
 
           {showLoading ? (

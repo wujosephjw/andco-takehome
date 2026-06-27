@@ -4,7 +4,6 @@ import { BUCKET_LABEL } from "@/lib/bucket";
 import { categoryLabel } from "@/lib/tokens";
 import { StatusDot } from "./StatusDot";
 import { Button } from "./Button";
-import { StatePreviewSwitcher, type PreviewMode } from "./StatePreviewSwitcher";
 import { Plus, Search } from "./icons";
 
 const STATUS_BUCKETS: Bucket[] = ["needs_you", "in_flight", "done", "draft"];
@@ -50,8 +49,6 @@ export function CaseRail({
   query,
   onQuery,
   onSetFilter,
-  preview,
-  onPreview,
 }: {
   caseData: Case;
   counts: OverviewCounts;
@@ -60,8 +57,6 @@ export function CaseRail({
   query: string;
   onQuery: (q: string) => void;
   onSetFilter: (patch: Partial<FilterSpec>) => void;
-  preview: PreviewMode;
-  onPreview: (m: PreviewMode) => void;
 }) {
   return (
     <aside className="hidden min-h-0 flex-col border-r border-white/50 bg-white/28 lg:flex">
@@ -138,7 +133,6 @@ export function CaseRail({
           <Plus className="size-4" />
           New request
         </Button>
-        <StatePreviewSwitcher mode={preview} onChange={onPreview} />
       </div>
     </aside>
   );

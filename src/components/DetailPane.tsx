@@ -8,12 +8,14 @@ export function DetailPane({
   ...handlers
 }: { request: Request | null } & DetailHandlers) {
   return (
-    <aside className="hidden min-h-0 flex-col border-l border-hairline bg-surface lg:flex">
+    <aside className="hidden min-h-0 flex-col border-l border-white/50 bg-white/24 lg:flex">
       {request ? (
         <RequestDetail request={request} {...handlers} />
       ) : (
         <div className="flex h-full flex-col items-center justify-center gap-3 px-8 text-center">
-          <Inbox className="size-7 text-hairline-strong" />
+          <span className="grid size-12 place-items-center rounded-full border border-white/70 bg-glass-strong shadow-rest">
+            <Inbox className="size-6 text-ink-faint" />
+          </span>
           <p className="text-body text-ink-muted">Select a request to see its details, activity, and actions.</p>
         </div>
       )}

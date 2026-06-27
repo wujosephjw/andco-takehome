@@ -4,7 +4,7 @@ import { relativeTime, shortDate } from "@/lib/relativeTime";
 
 function ChannelTag({ channel }: { channel: Channel }) {
   return (
-    <span className="rounded-sm bg-draft-bg px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-draft-text">
+    <span className="rounded-full border border-white/70 bg-glass-strong px-1.5 py-0.5 text-[10px] font-medium text-ink-faint shadow-rest">
       {channelLabel[channel]}
     </span>
   );
@@ -39,10 +39,10 @@ export function ActivityTimeline({
                 <span className="absolute left-1/2 top-3 bottom-0 w-px -translate-x-1/2 bg-hairline" />
               )}
               <span
-                className={`z-10 mt-1.5 size-2.5 rounded-full border-2 ${
+                className={`z-10 mt-1.5 size-2.5 rounded-full border ${
                   i === 0
-                    ? "border-sage bg-sage"
-                    : "border-hairline-strong bg-surface"
+                    ? "border-white/70 bg-dot-needs"
+                    : "border-white/70 bg-glass-strong"
                 }`}
                 aria-hidden
               />

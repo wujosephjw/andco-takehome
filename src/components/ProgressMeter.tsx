@@ -14,9 +14,9 @@ export function ProgressMeter({
   const complete = p.expected > 0 && p.received >= p.expected;
   return (
     <div className="flex items-center gap-2" title={`${p.received} of ${p.expected} pages`}>
-      <span className={`h-1 ${width} overflow-hidden rounded-full bg-sunk`}>
+      <span className={`h-1 ${width} overflow-hidden rounded-full bg-sunk/80`}>
         <span
-          className={`block h-full rounded-full ${complete ? "bg-done-text" : "bg-sage"}`}
+          className={`block h-full rounded-full ${complete ? "bg-ink-muted" : "bg-dot-needs"}`}
           style={{ width: `${Math.max(p.pct, 4)}%` }}
         />
       </span>

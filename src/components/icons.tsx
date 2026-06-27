@@ -55,6 +55,23 @@ export function Check({ className }: IconProps) {
   );
 }
 
+export function Plus({ className }: IconProps) {
+  return (
+    <svg {...base(className)}>
+      <path d="M12 5v14M5 12h14" />
+    </svg>
+  );
+}
+
+export function Search({ className }: IconProps) {
+  return (
+    <svg {...base(className)}>
+      <circle cx="11" cy="11" r="6.5" />
+      <path d="M16 16l3.5 3.5" />
+    </svg>
+  );
+}
+
 export function Close({ className }: IconProps) {
   return (
     <svg {...base(className)}>

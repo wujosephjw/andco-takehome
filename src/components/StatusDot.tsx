@@ -1,6 +1,6 @@
 import type { Bucket } from "@/lib/types";
 
-/** Saturated traffic-light dot per action-bucket (Legora Monitors-style marker). */
+/** Small workspace marker: mostly neutral, with amber reserved for action-needed. */
 const DOT: Record<Bucket, string> = {
   needs_you: "bg-dot-needs",
   in_flight: "bg-dot-flight",
@@ -11,6 +11,6 @@ const DOT: Record<Bucket, string> = {
 
 export function StatusDot({ bucket, className }: { bucket: Bucket; className?: string }) {
   return (
-    <span className={`inline-block size-2 shrink-0 rounded-full ${DOT[bucket]} ${className ?? ""}`} aria-hidden />
+    <span className={`inline-block size-2.5 shrink-0 rounded-full border border-white/70 shadow-rest ${DOT[bucket]} ${className ?? ""}`} aria-hidden />
   );
 }

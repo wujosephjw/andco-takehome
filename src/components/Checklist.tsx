@@ -34,21 +34,23 @@ function ActionCard({ r, selectedId, onOpen, onResolve, onFollowUp }: { r: Reque
       tabIndex={0}
       onClick={() => onOpen(r.id)}
       onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), onOpen(r.id))}
-      className={`cursor-pointer rounded-lg border border-needs-border bg-surface p-4 shadow-card transition-shadow hover:shadow-lift ${
-        selected ? "ring-2 ring-brand" : ""
+      className={`cursor-pointer rounded-[22px] border border-white/70 bg-glass-strong p-4 shadow-card backdrop-blur-xl transition hover:bg-white/75 hover:shadow-lift ${
+        selected ? "ring-2 ring-brand/80" : ""
       }`}
-      style={{ borderLeftWidth: 3, borderLeftColor: "var(--color-dot-needs)" }}
     >
       <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="truncate text-row font-medium text-ink">{r.documentType}</div>
-          <div className="truncate text-meta text-ink-muted">{r.source}</div>
+        <div className="flex min-w-0 gap-2.5">
+          <StatusDot bucket="needs_you" className="mt-1" />
+          <div className="min-w-0">
+            <div className="truncate text-row font-medium text-ink">{r.documentType}</div>
+            <div className="truncate text-meta text-ink-muted">{r.source}</div>
+          </div>
         </div>
         <CategoryPill category={r.category} />
       </div>
 
       {r.attentionReason && (
-        <p className="mt-3 rounded-md border border-needs-border bg-needs-bg/60 px-3 py-2 text-body text-ink">
+        <p className="mt-3 rounded-2xl border border-white/60 bg-white/42 px-3 py-2 text-body text-ink-muted">
           {r.attentionReason}
         </p>
       )}
@@ -77,8 +79,8 @@ function RequestRow({ r, bucket, selectedId, onOpen }: { r: Request; bucket: Buc
     <button
       type="button"
       onClick={() => onOpen(r.id)}
-      className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors ${
-        selected ? "bg-brand-tint" : "hover:bg-surface-hover"
+      className={`flex min-h-16 w-full items-center gap-3 px-4 py-3 text-left transition-colors ${
+        selected ? "bg-white/78" : "hover:bg-white/55"
       }`}
     >
       <StatusDot bucket={bucket} />
@@ -107,11 +109,11 @@ function CollectedChip({ r, selectedId, onOpen }: { r: Request } & Pick<RowHandl
     <button
       type="button"
       onClick={() => onOpen(r.id)}
-      className={`inline-flex items-center gap-2.5 rounded-full border border-hairline bg-surface py-2 pl-2.5 pr-3 shadow-rest transition-shadow hover:shadow-card ${
-        selected ? "ring-2 ring-brand" : ""
+      className={`inline-flex items-center gap-2.5 rounded-full border border-white/70 bg-glass-strong py-2 pl-2.5 pr-3 shadow-rest backdrop-blur-xl transition hover:bg-white/70 hover:shadow-card ${
+        selected ? "ring-2 ring-brand/80" : ""
       }`}
     >
-      <span className="grid size-5 place-items-center rounded-full bg-brand-tint text-brand">
+      <span className="grid size-5 place-items-center rounded-full border border-white/70 bg-white/70 text-ink-muted">
         <Check className="size-3" />
       </span>
       <span className="text-meta font-medium text-ink">{r.documentType}</span>
@@ -130,10 +132,12 @@ function GroupSection({ group, handlers }: { group: Group; handlers: RowHandlers
   const { bucket, label, hint, items } = group;
   return (
     <section>
-      <header className="mb-3 flex items-center gap-2.5">
+      <header className="mb-3 flex items-center gap-2.5 px-1">
         <StatusDot bucket={bucket} />
-        <h2 className="text-subhead font-semibold tracking-tight text-ink">{label}</h2>
-        <span className="rounded-full bg-sunk px-2 py-0.5 text-badge font-medium text-ink-muted">{items.length}</span>
+        <h2 className="text-body font-medium text-ink">{label}</h2>
+        <span className="rounded-full border border-white/70 bg-glass-strong px-2 py-0.5 text-badge font-medium text-ink-muted shadow-rest">
+          {items.length}
+        </span>
         <span className="h-px flex-1 bg-hairline" />
         {hint && <span className="text-meta text-ink-faint">{hint}</span>}
       </header>
@@ -151,7 +155,7 @@ function GroupSection({ group, handlers }: { group: Group; handlers: RowHandlers
           ))}
         </div>
       ) : (
-        <div className="divide-y divide-hairline overflow-hidden rounded-lg border border-hairline bg-surface shadow-rest">
+        <div className="divide-y divide-hairline overflow-hidden rounded-[22px] border border-white/70 bg-glass-strong shadow-card backdrop-blur-xl">
           {items.map((r) => (
             <RequestRow key={r.id} r={r} bucket={bucket} selectedId={handlers.selectedId} onOpen={handlers.onOpen} />
           ))}
@@ -182,8 +186,8 @@ function MobilePills({
             key={b ?? "all"}
             type="button"
             onClick={() => onSetFilter({ bucket: b })}
-            className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-meta font-medium transition-colors ${
-              active ? "bg-brand-tint text-brand-ink" : "bg-surface text-ink-muted"
+            className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-meta font-medium shadow-rest transition-colors ${
+              active ? "border-white/80 bg-white/80 text-ink" : "border-white/60 bg-glass-strong text-ink-muted"
             }`}
           >
             {b && <StatusDot bucket={b} />}
@@ -225,12 +229,13 @@ export function Checklist({
   filteredEmpty: boolean;
 } & RowHandlers) {
   return (
-    <section className="flex min-h-0 flex-col">
+    <section className="flex min-h-0 flex-col bg-transparent">
       {/* Panel header */}
-      <div className="flex flex-col gap-3 border-b border-hairline px-5 py-3.5 sm:px-6">
+      <div className="flex flex-col gap-3 border-b border-white/50 px-5 py-5 sm:px-6">
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
-            <h2 className="truncate font-display text-section text-ink lg:text-subhead">
+            <p className="truncate text-meta text-ink-faint lg:hidden">{caseData.clientName}</p>
+            <h2 className="truncate text-section font-medium text-ink lg:text-subhead">
               <span className="lg:hidden">{caseData.matterName}</span>
               <span className="hidden lg:inline">Document checklist</span>
             </h2>
@@ -240,7 +245,7 @@ export function Checklist({
             <select
               value={sort}
               onChange={(e) => onSetSort(e.target.value as SortKey)}
-              className="rounded-md border border-hairline bg-surface px-2 py-1 text-meta text-ink"
+              className="h-9 rounded-full border border-white/70 bg-glass-strong px-3 text-meta text-ink shadow-rest backdrop-blur-xl"
             >
               {SORTS.map((s) => (
                 <option key={s.key} value={s.key}>

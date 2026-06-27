@@ -8,11 +8,11 @@ import type { Bucket, Category, Channel, Status } from "./types";
  */
 
 export const bucketBadgeClasses: Record<Bucket, string> = {
-  needs_you: "bg-needs-bg text-needs-text border-needs-border",
-  in_flight: "bg-flight-bg text-flight-text border-flight-border",
-  done: "bg-done-bg text-done-text border-done-border",
-  draft: "bg-draft-bg text-draft-text border-draft-border",
-  closed: "bg-closed-bg text-closed-text border-closed-border",
+  needs_you: "bg-glass-strong text-ink border-white/70",
+  in_flight: "bg-glass-strong text-ink-muted border-white/70",
+  done: "bg-glass-strong text-ink-muted border-white/70",
+  draft: "bg-glass text-ink-faint border-white/60",
+  closed: "bg-glass text-ink-faint border-white/50",
 };
 
 export const rawStatusLabel: Record<Status, string> = {
@@ -34,9 +34,9 @@ export const categoryLabel: Record<Category, string> = {
 };
 
 export const categoryTextClass: Record<Category, string> = {
-  police: "text-cat-police",
-  medical: "text-cat-medical",
-  insurance: "text-cat-insurance",
+  police: "text-ink-muted",
+  medical: "text-ink-muted",
+  insurance: "text-ink-muted",
 };
 
 export const channelLabel: Record<Channel, string> = {

@@ -14,7 +14,7 @@ export function CategoryTag({
 }) {
   return (
     <span
-      className={`inline-flex items-center gap-1.5 ${categoryTextClass[category]} ${className ?? ""}`}
+      className={`inline-flex items-center gap-1.5 text-ink-muted ${categoryTextClass[category]} ${className ?? ""}`}
       title={categoryLabel[category]}
     >
       <CategoryIcon category={category} className="size-4" />

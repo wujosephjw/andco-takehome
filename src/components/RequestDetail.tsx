@@ -22,7 +22,7 @@ export interface DetailHandlers {
 function Fact({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <dt className="text-label font-semibold uppercase tracking-wide text-ink-faint">{label}</dt>
+      <dt className="text-meta font-medium text-ink-faint">{label}</dt>
       <dd className="mt-1 text-body text-ink">{children}</dd>
     </div>
   );
@@ -37,8 +37,8 @@ function NoteComposer({ onAdd }: { onAdd: (text: string) => void }) {
     setText("");
   };
   return (
-    <div className="mt-6 border-t border-hairline pt-4">
-      <label className="mb-2 block text-label font-semibold uppercase tracking-wide text-ink-muted">
+    <div className="mt-6 border-t border-white/50 pt-4">
+      <label className="mb-2 block text-meta font-medium text-ink-muted">
         Add a note
       </label>
       <div className="flex items-center gap-2">
@@ -48,8 +48,8 @@ function NoteComposer({ onAdd }: { onAdd: (text: string) => void }) {
           onKeyDown={(e) => {
             if (e.key === "Enter") submit();
           }}
-          placeholder="Log a call, a follow-up…"
-          className="min-w-0 flex-1 rounded-md border border-hairline bg-paper px-3 py-2 text-body text-ink placeholder:text-ink-faint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+          placeholder="Log a call, a follow-up..."
+          className="h-10 min-w-0 flex-1 rounded-full border border-white/70 bg-glass-strong px-4 text-body text-ink shadow-rest placeholder:text-ink-faint backdrop-blur-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
         />
         <Button variant="ghost" onClick={submit} disabled={!text.trim()}>
           Add
@@ -81,7 +81,7 @@ function Footer({
   if (!primary && !showFollow) return null;
 
   return (
-    <div className="flex items-center gap-2 border-t border-hairline px-5 py-3.5">
+    <div className="flex items-center gap-2 border-t border-white/50 px-5 py-4">
       {showFollow && (
         <Button variant="ghost" className={primary ? "" : "flex-1"} onClick={() => onFollowUp(request.id)}>
           Follow up
@@ -103,13 +103,13 @@ export function RequestDetail({
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-start justify-between gap-3 border-b border-hairline px-5 py-4">
+      <div className="flex items-start justify-between gap-3 border-b border-white/50 px-5 py-5">
         <div className="min-w-0">
           <div className="mb-2 flex items-center gap-2">
             <StatusBadge status={request.status} />
             <CategoryTag category={request.category} showLabel />
           </div>
-          <h2 className="font-display text-subhead leading-snug text-ink">{request.documentType}</h2>
+          <h2 className="text-subhead font-medium leading-snug text-ink">{request.documentType}</h2>
           <p className="mt-0.5 text-meta text-ink-muted">{request.source}</p>
         </div>
         {onClose && (
@@ -117,7 +117,7 @@ export function RequestDetail({
             type="button"
             onClick={onClose}
             aria-label="Close details"
-            className="-mr-1 rounded-md p-1 text-ink-muted transition-colors hover:bg-surface-hover hover:text-ink"
+            className="-mr-1 rounded-full border border-transparent p-1 text-ink-muted transition-colors hover:border-white/70 hover:bg-glass-strong hover:text-ink"
           >
             <Close className="size-4" />
           </button>
@@ -125,7 +125,7 @@ export function RequestDetail({
       </div>
 
       <div className="flex-1 overflow-y-auto px-5 py-5">
-        <dl className="grid grid-cols-2 gap-x-4 gap-y-4">
+        <dl className="grid grid-cols-2 gap-x-4 gap-y-4 rounded-[22px] border border-white/60 bg-white/30 p-4 shadow-rest backdrop-blur-xl">
           <Fact label="Requested">{shortDate(request.requestedAt)}</Fact>
           <Fact label="Due">
             <DueLabel request={request} />
@@ -144,12 +144,12 @@ export function RequestDetail({
         {request.attentionReason && (
           <div
             className={`mt-5 rounded-md border p-3 ${
-              blocked ? "border-needs-border bg-needs-bg/60" : "border-hairline bg-sunk/50"
+              blocked ? "border-white/70 bg-white/52" : "border-white/60 bg-white/35"
             }`}
           >
             <p
-              className={`text-label font-semibold uppercase tracking-wide ${
-                blocked ? "text-needs-text" : "text-ink-muted"
+              className={`text-meta font-medium ${
+                blocked ? "text-ink" : "text-ink-muted"
               }`}
             >
               {blocked ? "Action required" : "Reason"}
@@ -159,7 +159,7 @@ export function RequestDetail({
         )}
 
         <div className="mt-6">
-          <p className="mb-3 text-label font-semibold uppercase tracking-wide text-ink-muted">Activity</p>
+          <p className="mb-3 text-meta font-medium text-ink-muted">Activity</p>
           <ActivityTimeline entries={request.activity} fallbackUpdatedAt={request.updatedAt} />
         </div>
 

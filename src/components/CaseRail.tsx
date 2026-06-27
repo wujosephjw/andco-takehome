@@ -5,12 +5,13 @@ import { categoryLabel } from "@/lib/tokens";
 import { StatusDot } from "./StatusDot";
 import { Button } from "./Button";
 import { StatePreviewSwitcher, type PreviewMode } from "./StatePreviewSwitcher";
+import { Plus, Search } from "./icons";
 
 const STATUS_BUCKETS: Bucket[] = ["needs_you", "in_flight", "done", "draft"];
 const CAT_SWATCH: Record<Category, string> = {
-  medical: "bg-cat-medical",
-  insurance: "bg-cat-insurance",
-  police: "bg-cat-police",
+  medical: "bg-dot-flight",
+  insurance: "bg-dot-flight",
+  police: "bg-dot-done",
 };
 
 function NavItem({
@@ -29,12 +30,12 @@ function NavItem({
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left text-body transition-colors ${
-        active ? "bg-brand-tint font-medium text-brand-ink" : "text-ink-muted hover:bg-surface-hover"
+      className={`flex h-9 w-full items-center gap-2.5 rounded-xl px-3 text-left text-body transition-colors ${
+        active ? "bg-glass-strong font-medium text-ink shadow-rest" : "text-ink-muted hover:bg-glass-strong hover:text-ink"
       }`}
     >
       {children}
-      <span className={`ml-auto text-meta tabular-nums ${active ? "text-brand-ink" : "text-ink-faint"}`}>
+      <span className={`ml-auto text-meta tabular-nums ${active ? "text-ink-muted" : "text-ink-faint"}`}>
         {count}
       </span>
     </button>
@@ -63,26 +64,36 @@ export function CaseRail({
   onPreview: (m: PreviewMode) => void;
 }) {
   return (
-    <aside className="hidden min-h-0 flex-col border-r border-hairline bg-surface lg:flex">
-      <div className="px-4 pb-3 pt-5">
-        <p className="text-label font-medium uppercase tracking-wide text-ink-faint">Document requests</p>
-        <h1 className="mt-1.5 font-display text-subhead leading-tight text-ink">{caseData.matterName}</h1>
-        <p className="mt-1.5 text-meta text-ink-muted">
+    <aside className="hidden min-h-0 flex-col border-r border-white/50 bg-white/28 lg:flex">
+      <div className="px-5 pb-4 pt-5">
+        <div className="mb-5 flex items-center gap-2.5">
+          <span className="grid size-8 shrink-0 place-items-center rounded-full bg-glass-strong text-ink shadow-rest">
+            <span className="size-2.5 rounded-full bg-dot-needs" aria-hidden />
+          </span>
+          <div className="min-w-0">
+            <p className="truncate text-body font-medium text-ink">{caseData.matterName}</p>
+            <p className="truncate text-meta text-ink-faint">Document requests</p>
+          </div>
+        </div>
+        <p className="text-meta text-ink-muted">
           {caseData.clientName} · {caseData.matterType}
         </p>
       </div>
 
-      <div className="px-3.5 pb-2.5">
-        <input
-          value={query}
-          onChange={(e) => onQuery(e.target.value)}
-          placeholder="Search requests…"
-          className="w-full rounded-full border border-hairline-strong bg-surface px-3 py-1.5 text-meta text-ink placeholder:text-ink-faint"
-        />
+      <div className="px-4 pb-4">
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink-faint" />
+          <input
+            value={query}
+            onChange={(e) => onQuery(e.target.value)}
+            placeholder="Search requests"
+            className="h-10 w-full rounded-full border border-white/70 bg-glass-strong pl-9 pr-3 text-body text-ink shadow-rest placeholder:text-ink-faint backdrop-blur-xl"
+          />
+        </div>
       </div>
 
-      <nav className="min-h-0 flex-1 overflow-y-auto px-2.5">
-        <div className="px-2.5 pb-1.5 text-label font-semibold uppercase tracking-wide text-ink-faint">Status</div>
+      <nav className="min-h-0 flex-1 overflow-y-auto px-3">
+        <div className="px-3 pb-2 text-meta font-medium text-ink-faint">Status</div>
         <NavItem active={filter.bucket === null} onClick={() => onSetFilter({ bucket: null })} count={counts.total}>
           All requests
         </NavItem>
@@ -98,7 +109,7 @@ export function CaseRail({
           </NavItem>
         ))}
 
-        <div className="mt-4 px-2.5 pb-1.5 text-label font-semibold uppercase tracking-wide text-ink-faint">
+        <div className="mt-5 px-3 pb-2 text-meta font-medium text-ink-faint">
           Category
         </div>
         {(Object.keys(byCategory) as Category[]).map((c) => (
@@ -114,7 +125,7 @@ export function CaseRail({
         ))}
 
         {counts.byBucket.closed > 0 && (
-          <label className="mt-3 flex cursor-pointer select-none items-center gap-2 px-2.5 py-1.5 text-meta text-ink-muted">
+          <label className="mt-4 flex cursor-pointer select-none items-center gap-2 rounded-xl px-3 py-2 text-meta text-ink-muted hover:bg-glass-strong">
             <input
               type="checkbox"
               checked={filter.includeCanceled}
@@ -126,8 +137,11 @@ export function CaseRail({
         )}
       </nav>
 
-      <div className="space-y-3 border-t border-hairline px-3.5 py-3">
-        <Button className="w-full">+ New request</Button>
+      <div className="space-y-3 border-t border-white/50 px-4 py-4">
+        <Button className="w-full">
+          <Plus className="size-4" />
+          New request
+        </Button>
         <StatePreviewSwitcher mode={preview} onChange={onPreview} />
       </div>
     </aside>

@@ -5,7 +5,6 @@ import { resolveLabelFor } from "@/lib/nextAction";
 import { StatusDot } from "./StatusDot";
 import { CategoryPill } from "./CategoryPill";
 import { DueLabel } from "./DueLabel";
-import { AssigneeChip } from "./Avatar";
 import { Button } from "./Button";
 import { EmptyState } from "./EmptyState";
 import { Check } from "./icons";
@@ -25,7 +24,7 @@ type RowHandlers = {
 };
 
 /* ── Action-needed card (needs_you) ───────────────────────────────── */
-function ActionCard({ r, selectedId, onOpen, onResolve, onFollowUp }: { r: Request } & RowHandlers) {
+function ActionCard({ r, selectedId, onOpen, onResolve }: { r: Request } & RowHandlers) {
   const selected = r.id === selectedId;
   const dimmed = selectedId !== null && !selected;
   return (
@@ -34,7 +33,7 @@ function ActionCard({ r, selectedId, onOpen, onResolve, onFollowUp }: { r: Reque
       tabIndex={0}
       onClick={() => onOpen(r.id)}
       onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), onOpen(r.id))}
-      className={`liquid-surface min-w-0 cursor-pointer rounded-[22px] border p-4 shadow-card ${
+      className={`liquid-surface flex min-w-0 cursor-pointer flex-col rounded-[22px] border p-4 shadow-card ${
         selected
           ? "border-white/90 bg-white/90"
           : dimmed
@@ -54,21 +53,16 @@ function ActionCard({ r, selectedId, onOpen, onResolve, onFollowUp }: { r: Reque
       </div>
 
       {r.attentionReason && (
-        <p className="mt-3 rounded-2xl border border-white/45 bg-white/30 px-3 py-2 text-body text-ink-muted">
+        <p className="ml-3 mt-3 rounded-2xl border border-white/45 bg-white/30 px-3 py-2 text-body text-ink-muted">
           {r.attentionReason}
         </p>
       )}
 
-      <div className="mt-3.5 flex flex-wrap items-center justify-between gap-3">
-        <span className="inline-flex items-center gap-2 text-meta text-ink-faint">
+      <div className="ml-3 mt-auto flex flex-wrap items-center justify-between gap-3 pt-3.5">
+        <span className="liquid-control inline-flex h-9 items-center rounded-full border border-white/60 bg-glass px-3 shadow-rest">
           <DueLabel request={r} />
-          <span aria-hidden>·</span>
-          <AssigneeChip name={r.assignee} />
         </span>
         <span className="flex max-w-full flex-wrap items-center justify-end gap-2">
-          <Button variant="ghost" onClick={(e) => (e.stopPropagation(), onFollowUp(r.id))}>
-            Follow up
-          </Button>
           <Button variant="secondary" onClick={(e) => (e.stopPropagation(), onResolve(r.id))}>{resolveLabelFor(r)}</Button>
         </span>
       </div>
@@ -100,9 +94,6 @@ function RequestRow({ r, bucket, selectedId, onOpen }: { r: Request; bucket: Buc
       <CategoryPill category={r.category} className="hidden sm:inline-flex" />
       <span className="w-[112px] shrink-0 text-right">
         <DueLabel request={r} />
-      </span>
-      <span className="hidden xl:inline-flex">
-        <AssigneeChip name={r.assignee} />
       </span>
     </button>
   );

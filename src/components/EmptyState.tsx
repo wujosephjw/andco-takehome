@@ -29,7 +29,9 @@ export function EmptyState({
   return (
     <div className="flex flex-col items-center gap-3 px-6 py-20 text-center">
       <Inbox className="size-8 text-hairline-strong" />
-      <h3 className="font-display text-section text-ink">No document requests yet</h3>
+      <h3 className="font-display text-section font-medium tracking-tight text-ink">
+        No document requests yet
+      </h3>
       <p className="max-w-xs text-body text-ink-muted">
         When you request records, they&rsquo;ll appear here — sorted by what needs
         you first.

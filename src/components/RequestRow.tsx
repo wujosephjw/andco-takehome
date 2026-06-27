@@ -18,7 +18,7 @@ export function RequestRow({
       type="button"
       onClick={() => onOpen(request.id)}
       aria-label={`${request.documentType} from ${request.source} — ${rawStatusLabel[request.status]}`}
-      className="group grid w-full grid-cols-[18px_minmax(0,1fr)_auto_14px] items-center gap-x-3 px-4 py-2.5 text-left transition-colors hover:bg-surface-hover sm:grid-cols-[18px_minmax(0,1fr)_112px_104px_104px_120px_14px]"
+      className="group grid w-full grid-cols-[18px_minmax(0,1fr)_auto_14px] items-center gap-x-3 px-5 py-3.5 text-left transition-colors hover:bg-surface-hover sm:grid-cols-[18px_minmax(0,1fr)_112px_104px_104px_120px_14px]"
     >
       <CategoryIcon category={request.category} className="size-[18px] text-ink-faint" />
 

@@ -75,23 +75,25 @@ export function Tracker() {
   const selected = requests.find((r) => r.id === state.selectedId) ?? null;
 
   return (
-    <main className="mx-auto w-full max-w-[960px] px-5 py-8 sm:px-8 sm:py-10">
-      <div className="mb-7 flex items-start justify-between gap-4">
+    <main className="mx-auto w-full max-w-[980px] px-5 py-12 sm:px-8 sm:py-16">
+      <div className="mb-10 flex items-start justify-between gap-4">
         {caseData ? (
           <div>
-            <p className="text-label font-medium uppercase tracking-wide text-ink-faint">
+            <p className="text-label font-medium uppercase tracking-[0.14em] text-ink-faint">
               Document requests
             </p>
-            <h1 className="mt-1 font-display text-display text-ink">{caseData.matterName}</h1>
-            <p className="mt-1.5 text-meta text-ink-muted">
+            <h1 className="mt-2.5 font-display text-display font-normal tracking-display text-ink">
+              {caseData.matterName}
+            </h1>
+            <p className="mt-2 text-meta text-ink-muted">
               {caseData.clientName} · {caseData.matterType} · Paralegal{" "}
               {caseData.assignedParalegal}
             </p>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             <span className="block h-3 w-24 animate-pulse rounded bg-sunk" />
-            <span className="block h-7 w-64 animate-pulse rounded bg-sunk" />
+            <span className="block h-10 w-72 animate-pulse rounded-lg bg-sunk" />
           </div>
         )}
         <StatePreviewSwitcher mode={preview} onChange={setPreview} />
@@ -100,7 +102,7 @@ export function Tracker() {
       {showLoading ? (
         <LoadingState />
       ) : (
-        <div className="space-y-7">
+        <div className="space-y-12">
           <OverviewStrip counts={counts} />
 
           <NeedsYouSection
@@ -110,8 +112,10 @@ export function Tracker() {
             onOpen={open}
           />
 
-          <section className="space-y-3">
-            <h2 className="font-display text-section text-ink">All requests</h2>
+          <section className="space-y-4">
+            <h2 className="font-display text-section font-medium tracking-tight text-ink">
+              All requests
+            </h2>
             <FilterSortBar
               filter={state.filter}
               sort={state.sort}

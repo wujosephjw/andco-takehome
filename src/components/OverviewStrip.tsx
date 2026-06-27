@@ -20,8 +20,10 @@ function Chip({
   accent?: Accent;
 }) {
   return (
-    <div className="flex flex-col gap-0.5">
-      <span className={`font-display text-count tnum ${NUMERAL[accent]}`}>{value}</span>
+    <div className="flex flex-col gap-1">
+      <span className={`font-display text-count font-light tracking-tight tnum ${NUMERAL[accent]}`}>
+        {value}
+      </span>
       <span className="text-label font-medium uppercase tracking-wide text-ink-muted">
         {label}
         {suffix && (
@@ -36,7 +38,7 @@ function Chip({
 export function OverviewStrip({ counts }: { counts: OverviewCounts }) {
   return (
     <div
-      className="grid grid-cols-2 gap-x-8 gap-y-4 rounded-lg bg-sunk/60 px-5 py-4 sm:grid-cols-4"
+      className="grid grid-cols-2 gap-x-8 gap-y-5 rounded-xl border border-hairline bg-surface px-6 py-5 shadow-rest sm:grid-cols-4"
       aria-label={`Case health: ${counts.needsYou} need you, ${counts.overdue} overdue, ${counts.inFlight} in flight, ${counts.done} of ${counts.total} done`}
     >
       <Chip

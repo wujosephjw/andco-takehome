@@ -81,7 +81,7 @@ export function DetailDrawer({
     <div aria-hidden={!open} className={`fixed inset-0 z-40 ${open ? "" : "pointer-events-none"}`}>
       <div
         onClick={onClose}
-        className={`absolute inset-0 bg-[rgba(26,24,20,0.28)] transition-opacity duration-200 ${open ? "opacity-100" : "opacity-0"}`}
+        className={`absolute inset-0 bg-overlay transition-opacity duration-200 ${open ? "opacity-100" : "opacity-0"}`}
       />
       <div
         ref={panelRef}
@@ -89,7 +89,7 @@ export function DetailDrawer({
         aria-modal="true"
         aria-label={shown ? shown.documentType : "Request details"}
         tabIndex={-1}
-        className={`absolute right-0 top-0 flex h-full w-[440px] max-w-[92vw] flex-col bg-surface shadow-drawer outline-none transition-transform duration-200 ease-out ${open ? "translate-x-0" : "translate-x-full"}`}
+        className={`absolute right-0 top-0 flex h-full w-[440px] max-w-[92vw] flex-col overflow-hidden rounded-l-xl border-l border-hairline-strong bg-surface/85 shadow-drawer outline-none backdrop-blur-2xl transition-transform duration-200 ease-out ${open ? "translate-x-0" : "translate-x-full"}`}
       >
         {shown && <DrawerContent request={shown} {...handlers} />}
       </div>
@@ -129,7 +129,7 @@ function NoteComposer({ onAdd }: { onAdd: (text: string) => void }) {
             if (e.key === "Enter") submit();
           }}
           placeholder="Log a call, a follow-up…"
-          className="min-w-0 flex-1 rounded-md border border-hairline bg-paper px-3 py-2 text-body text-ink placeholder:text-ink-faint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage"
+          className="min-w-0 flex-1 rounded-lg border border-hairline bg-surface px-3 py-2 text-body text-ink placeholder:text-ink-faint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green"
         />
         <Button variant="ghost" onClick={submit} disabled={!text.trim()}>
           Add
@@ -195,7 +195,7 @@ function DrawerContent({
           <div className="mb-2">
             <StatusBadge status={request.status} />
           </div>
-          <h2 className="font-display text-subhead leading-snug text-ink">
+          <h2 className="font-display text-subhead font-medium leading-snug tracking-tight text-ink">
             {request.documentType}
           </h2>
           <p className="mt-0.5 text-meta text-ink-muted">{request.source}</p>
@@ -237,7 +237,7 @@ function DrawerContent({
 
         {request.attentionReason && (
           <div
-            className={`mt-5 rounded-md border p-3 ${
+            className={`mt-5 rounded-lg border p-3.5 ${
               blocked
                 ? "border-needs-border bg-needs-bg/60"
                 : "border-hairline bg-sunk/50"

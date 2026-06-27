@@ -27,12 +27,12 @@ function Pill({
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-meta font-medium transition-colors ${
-        active ? "bg-sage-tint text-sage-ink" : "text-ink-muted hover:bg-surface-hover"
+      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-meta font-medium transition-colors ${
+        active ? "bg-green-tint text-green-ink" : "text-ink-muted hover:bg-surface-hover"
       }`}
     >
       {label}
-      <span className={`tnum text-[11px] ${active ? "text-sage-ink" : "text-ink-faint"}`}>
+      <span className={`tnum text-[11px] ${active ? "text-green-ink" : "text-ink-faint"}`}>
         {count}
       </span>
     </button>
@@ -77,7 +77,7 @@ export function FilterSortBar({
               type="checkbox"
               checked={filter.includeCanceled}
               onChange={(e) => onSetFilter({ includeCanceled: e.target.checked })}
-              className="size-3.5 accent-sage"
+              className="size-3.5 accent-green"
             />
             Show canceled
           </label>
@@ -87,7 +87,7 @@ export function FilterSortBar({
           <select
             value={sort}
             onChange={(e) => onSetSort(e.target.value as SortKey)}
-            className="rounded-md border border-hairline bg-surface px-2 py-1 text-meta text-ink"
+            className="rounded-full border border-hairline bg-surface px-3 py-1.5 text-meta text-ink"
           >
             {SORTS.map((s) => (
               <option key={s.key} value={s.key}>

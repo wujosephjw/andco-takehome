@@ -16,7 +16,7 @@ export function ProgressMeter({
     <div className="flex items-center gap-2" title={`${p.received} of ${p.expected} pages`}>
       <span className={`h-1 ${width} overflow-hidden rounded-full bg-sunk`}>
         <span
-          className={`block h-full rounded-full ${complete ? "bg-done-text" : "bg-sage"}`}
+          className={`block h-full rounded-full ${complete ? "bg-done-text" : "bg-green"}`}
           style={{ width: `${Math.max(p.pct, 4)}%` }}
         />
       </span>

@@ -19,7 +19,7 @@ function AttentionCard({
 }) {
   return (
     <div
-      className="rounded-lg border border-needs-border bg-surface p-4 shadow-card"
+      className="rounded-xl border border-hairline bg-surface p-5 shadow-card"
       style={{ borderLeftWidth: 3, borderLeftColor: "var(--color-needs-accent)" }}
     >
       <div className="flex items-start justify-between gap-3">
@@ -75,7 +75,7 @@ export function NeedsYouSection({
   return (
     <section aria-label="Needs you">
       <header className="mb-3 flex items-center gap-2">
-        <h2 className="font-display text-section text-ink">Needs you</h2>
+        <h2 className="font-display text-section font-medium tracking-tight text-ink">Needs you</h2>
         {requests.length > 0 && (
           <span className="rounded-full bg-needs-bg px-2 py-0.5 text-badge font-medium text-needs-text">
             {requests.length}
@@ -84,8 +84,8 @@ export function NeedsYouSection({
       </header>
 
       {requests.length === 0 ? (
-        <div className="flex items-center gap-2.5 rounded-lg border border-hairline bg-surface px-4 py-3.5 text-subhead font-display text-sage-ink">
-          <Check className="size-5 text-sage" />
+        <div className="flex items-center gap-2.5 rounded-xl border border-hairline bg-surface px-5 py-4 text-subhead font-display text-green-ink">
+          <Check className="size-5 text-green" />
           Nothing needs you right now.
         </div>
       ) : (

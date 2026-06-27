@@ -6,7 +6,6 @@ import { TODAY } from "@/lib/clock";
 import { bucketForStatus } from "@/lib/bucket";
 import {
   selectOverview,
-  selectNeedsYou,
   selectFiltered,
   type FilterSpec,
 } from "@/lib/selectors";
@@ -90,9 +89,7 @@ export function Tracker() {
   }, [visible, state.filter.bucket]);
 
   const selected = requests.find((r) => r.id === state.selectedId) ?? null;
-  // The pane always shows something useful: the explicit selection, else the most urgent item.
-  const paneRequest = selected ?? selectNeedsYou(requests, TODAY)[0] ?? requests[0] ?? null;
-  const highlightId = selected?.id ?? paneRequest?.id ?? null;
+  const highlightId = selected?.id ?? null;
 
   const noData = !showLoading && requests.length === 0;
   const filteredEmpty = !showLoading && requests.length > 0 && groups.length === 0;
@@ -154,7 +151,7 @@ export function Tracker() {
             />
           )}
 
-          <DetailPane request={showLoading ? null : paneRequest} {...detailHandlers} />
+          <DetailPane request={showLoading ? null : selected} onClose={close} {...detailHandlers} />
         </div>
       </main>
 

@@ -1,112 +1,90 @@
 @import "tailwindcss";
 
-/* ─────────────────────────────────────────────────────────────────────────
-   Design tokens — the single source of truth.
-   Tailwind v4 turns each token below into utilities automatically:
-     --color-paper      → bg-paper / text-paper / border-paper
-     --font-display     → font-display
-     --text-section     → text-section (size + line-height in one utility)
-     --radius-lg        → rounded-lg     --shadow-card → shadow-card
-   Adding a token here is the only place colors / type / spacing are defined.
-   ───────────────────────────────────────────────────────────────────────── */
+/* Design tokens. Tailwind v4 turns these into utilities automatically. */
 @theme {
-  /* Fonts — bridge the next/font css variables set on <html> */
-  --font-display: var(--font-lora);        /* Lora serif — editorial headings only   */
-  --font-sans: var(--font-geist-sans);     /* Geist — all UI + data                   */
-  --font-mono: var(--font-geist-mono);     /* Geist Mono — page-count fractions       */
+  --font-display: var(--font-geist-sans);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
 
-  /* Neutrals — warm off-white page, crisp white surfaces (Legora-informed) */
-  --color-paper: #f5f4f0;          /* app background (warm off-white)         */
-  --color-surface: #ffffff;        /* crisp white cards / panels              */
-  --color-surface-hover: #f2f0ea;  /* row hover                               */
-  --color-sunk: #efede7;           /* recessed wells, skeleton                */
-  --color-ink: #1a1a1a;            /* primary text                            */
-  --color-ink-muted: #56544e;      /* secondary text (~7:1)                   */
-  --color-ink-faint: #8a877f;      /* tertiary, non-essential only            */
-  --color-hairline: #e3e0d8;       /* 1px dividers / borders                  */
-  --color-hairline-strong: #d6d2c8;/* drawer edge, focused border             */
+  --color-paper: #eef0ef;
+  --color-surface: #f7f8f7;
+  --color-surface-hover: #eceeed;
+  --color-sunk: #e4e7e6;
+  --color-glass: rgba(255, 255, 255, 0.58);
+  --color-glass-strong: rgba(255, 255, 255, 0.78);
+  --color-ink: #111111;
+  --color-ink-muted: #5f6261;
+  --color-ink-faint: #949897;
+  --color-hairline: rgba(17, 17, 17, 0.08);
+  --color-hairline-strong: rgba(17, 17, 17, 0.14);
 
-  /* Sage — secondary accent (progress, done family) */
-  --color-sage: #7a8c6e;
-  --color-sage-hover: #6b7d60;
-  --color-sage-active: #5e6f54;
-  --color-sage-tint: #ecefe7;
-  --color-sage-ink: #404a36;
-  --color-sage-onfill: #f7f8f4;
+  --color-brand: #0a0a0a;
+  --color-brand-hover: #1f1f1f;
+  --color-brand-tint: rgba(17, 17, 17, 0.08);
+  --color-brand-ink: #111111;
+  --color-brand-onfill: #ffffff;
 
-  /* Brand — forest green, primary actions + active nav (Legora-informed) */
-  --color-brand: #1d3c2e;
-  --color-brand-hover: #16301f;
-  --color-brand-tint: #e7eee9;
-  --color-brand-ink: #234534;
-  --color-brand-onfill: #f3f7f4;
+  --color-needs-bg: rgba(255, 255, 255, 0.72);
+  --color-needs-border: rgba(17, 17, 17, 0.1);
+  --color-needs-text: #111111;
+  --color-needs-accent: #ff7a1a;
+  --color-flight-bg: rgba(255, 255, 255, 0.62);
+  --color-flight-border: rgba(17, 17, 17, 0.08);
+  --color-flight-text: #5f6261;
+  --color-done-bg: rgba(255, 255, 255, 0.62);
+  --color-done-border: rgba(17, 17, 17, 0.08);
+  --color-done-text: #424645;
+  --color-draft-bg: rgba(255, 255, 255, 0.5);
+  --color-draft-border: rgba(17, 17, 17, 0.08);
+  --color-draft-text: #787c7b;
+  --color-closed-bg: rgba(255, 255, 255, 0.42);
+  --color-closed-border: rgba(17, 17, 17, 0.06);
+  --color-closed-text: #9a9d9c;
 
-  /* Status buckets — muted bg / border / text triplets */
-  /* needs_you — warm clay (the only "loud" family, and it's restrained) */
-  --color-needs-bg: #f2e4da;
-  --color-needs-border: #e0c7b6;
-  --color-needs-text: #8a4b2f;
-  --color-needs-accent: #b5613a;   /* 4px left rule on attention cards */
-  /* in_flight — cool parchment blue-grey */
-  --color-flight-bg: #e6eaec;
-  --color-flight-border: #cdd5d9;
-  --color-flight-text: #495a63;
-  /* done — sage, quiet resolution */
-  --color-done-bg: #ecefe7;
-  --color-done-border: #d2d9c6;
-  --color-done-text: #404a36;
-  /* draft — faded grey, not yet real */
-  --color-draft-bg: #eceae4;
-  --color-draft-border: #dddad2;
-  --color-draft-text: #76736b;
-  /* closed — fainter grey, deprioritized */
-  --color-closed-bg: #efeeea;
-  --color-closed-border: #e0ddd6;
-  --color-closed-text: #908c83;
+  --color-overdue: #a94722;
+  --color-overdue-dot: #ff7a1a;
 
-  /* Overdue — a flag on the due cell only, never the whole row */
-  --color-overdue: #a23b23;
-  --color-overdue-dot: #b5613a;
+  --color-cat-medical: #616665;     --color-cat-medical-bg: rgba(255, 255, 255, 0.64);
+  --color-cat-police: #616665;      --color-cat-police-bg: rgba(255, 255, 255, 0.64);
+  --color-cat-insurance: #7d683d;   --color-cat-insurance-bg: #eee7d4;
 
-  /* Category accents — colored tags on tints (Legora-informed) */
-  --color-cat-medical: #3a6ea5;     --color-cat-medical-bg: #e9f1f9;
-  --color-cat-police: #6a57a8;      --color-cat-police-bg: #eee9f7;
-  --color-cat-insurance: #a9772f;   --color-cat-insurance-bg: #f6efe1;
+  --color-dot-needs: #ff7a1a;
+  --color-dot-flight: #aeb4b2;
+  --color-dot-done: #5e6663;
+  --color-dot-draft: #c9cecc;
+  --color-dot-closed: #d8dcda;
 
-  /* Status dots — saturated marks for the at-a-glance list */
-  --color-dot-needs: #c2410c;
-  --color-dot-flight: #c2840c;
-  --color-dot-done: #1f8a4c;
-  --color-dot-draft: #aaa69c;
-  --color-dot-closed: #c9c5bc;
+  --color-sage: #6f7773;
+  --color-sage-hover: #5d6461;
+  --color-sage-active: #4f5552;
+  --color-sage-tint: rgba(17, 17, 17, 0.07);
+  --color-sage-ink: #2e3230;
+  --color-sage-onfill: #ffffff;
 
-  /* Type scale — size paired with line-height */
-  --text-display: 1.75rem;     --text-display--line-height: 2.125rem;  /* 28/34 Lora */
-  --text-count: 1.625rem;      --text-count--line-height: 1.875rem;    /* 26/30 Lora */
-  --text-section: 1.1875rem;   --text-section--line-height: 1.625rem;  /* 19/26 Lora */
-  --text-subhead: 1rem;        --text-subhead--line-height: 1.375rem;  /* 16/22 */
-  --text-row: 0.9375rem;       --text-row--line-height: 1.25rem;       /* 15/20 */
-  --text-body: 0.875rem;       --text-body--line-height: 1.3125rem;    /* 14/21 */
-  --text-meta: 0.8125rem;      --text-meta--line-height: 1.125rem;     /* 13/18 */
-  --text-badge: 0.6875rem;     --text-badge--line-height: 0.875rem;    /* 11/14 */
-  --text-label: 0.6875rem;     --text-label--line-height: 0.875rem;    /* 11/14 uppercase */
+  --text-display: 1.75rem;     --text-display--line-height: 2.125rem;
+  --text-count: 1.625rem;      --text-count--line-height: 1.875rem;
+  --text-section: 1.1875rem;   --text-section--line-height: 1.625rem;
+  --text-subhead: 1rem;        --text-subhead--line-height: 1.375rem;
+  --text-row: 0.9375rem;       --text-row--line-height: 1.25rem;
+  --text-body: 0.875rem;       --text-body--line-height: 1.3125rem;
+  --text-meta: 0.8125rem;      --text-meta--line-height: 1.125rem;
+  --text-badge: 0.6875rem;     --text-badge--line-height: 0.875rem;
+  --text-label: 0.6875rem;     --text-label--line-height: 0.875rem;
 
-  /* Radius */
-  --radius-sm: 0.25rem;   /* badges / tags  */
-  --radius-md: 0.5rem;    /* inputs / chips */
-  --radius-lg: 0.625rem;  /* cards / panel  */
-  --radius-xl: 0.75rem;   /* drawer         */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.375rem;
 
-  /* Shadow — minimal; editorial reads almost flat */
-  --shadow-rest: 0 1px 2px rgba(26, 24, 20, 0.04);
-  --shadow-card: 0 1px 3px rgba(138, 75, 47, 0.06);   /* warm lift on attention cards */
-  --shadow-lift: 0 4px 14px rgba(26, 24, 20, 0.08);
-  --shadow-drawer: -8px 0 32px rgba(26, 24, 20, 0.1);
-  --shadow-toast: 0 6px 20px rgba(26, 24, 20, 0.18);
+  --shadow-rest: 0 1px 2px rgba(17, 17, 17, 0.04), inset 0 1px rgba(255, 255, 255, 0.62);
+  --shadow-card: 0 8px 28px rgba(17, 17, 17, 0.06), inset 0 1px rgba(255, 255, 255, 0.7);
+  --shadow-lift: 0 14px 42px rgba(17, 17, 17, 0.1), inset 0 1px rgba(255, 255, 255, 0.72);
+  --shadow-window: 0 28px 90px rgba(74, 80, 78, 0.18), inset 0 1px rgba(255, 255, 255, 0.78);
+  --shadow-drawer: -12px 0 46px rgba(17, 17, 17, 0.16), inset 1px 0 rgba(255, 255, 255, 0.68);
+  --shadow-toast: 0 14px 40px rgba(17, 17, 17, 0.22);
 
-  /* Motion */
   --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
-  --animate-drain: drain 5s linear forwards; /* undo-toast countdown bar */
+  --animate-drain: drain 5s linear forwards;
 }
 
 @keyframes drain {
@@ -128,13 +106,11 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
   }
-  /* Brand focus ring on every interactive element, keyboard-only */
   :focus-visible {
     outline: 2px solid var(--color-brand);
     outline-offset: 2px;
-    border-radius: 3px;
+    border-radius: 8px;
   }
-  /* Tabular figures for any numeric data cell */
   .tnum {
     font-feature-settings: "tnum" 1;
     font-variant-numeric: tabular-nums;

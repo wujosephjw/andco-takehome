@@ -112,10 +112,14 @@ export function Tracker() {
   // Initial fetch (case not yet loaded): a brief neutral skeleton, no chrome to flash.
   if (!caseData) {
     return (
-      <main className="grid h-dvh place-items-center">
-        <div className="flex flex-col items-center gap-3" aria-busy="true" aria-label="Loading case">
-          <span className="size-7 animate-pulse rounded-full bg-sunk" />
-          <span className="text-meta text-ink-faint">Loading case…</span>
+      <main className="grid min-h-dvh place-items-center bg-paper p-5">
+        <div
+          className="flex min-h-56 w-full max-w-sm flex-col items-center justify-center gap-3 rounded-[28px] border border-white/70 bg-glass-strong shadow-window backdrop-blur-2xl"
+          aria-busy="true"
+          aria-label="Loading case"
+        >
+          <span className="size-8 animate-pulse rounded-full bg-sunk shadow-rest" />
+          <span className="text-meta text-ink-faint">Loading case...</span>
         </div>
       </main>
     );
@@ -123,40 +127,42 @@ export function Tracker() {
 
   return (
     <>
-      <main className="grid h-dvh grid-cols-1 overflow-hidden lg:grid-cols-[244px_minmax(0,1fr)_400px]">
-        <CaseRail
-          caseData={caseData}
-          counts={counts}
-          byCategory={byCategory}
-          filter={state.filter}
-          query={query}
-          onQuery={setQuery}
-          onSetFilter={setFilter}
-          preview={preview}
-          onPreview={setPreview}
-        />
-
-        {showLoading ? (
-          <MiddleLoading />
-        ) : (
-          <Checklist
+      <main className="min-h-dvh overflow-hidden bg-paper lg:grid lg:place-items-center lg:p-6">
+        <div className="grid h-dvh w-full grid-cols-1 overflow-hidden bg-glass backdrop-blur-2xl lg:h-[calc(100dvh-3rem)] lg:max-w-[1500px] lg:grid-cols-[252px_minmax(0,1fr)_392px] lg:rounded-[30px] lg:border lg:border-white/70 lg:shadow-window">
+          <CaseRail
             caseData={caseData}
-            groups={groups}
-            filter={state.filter}
             counts={counts}
-            sort={state.sort}
-            onSetSort={setSort}
+            byCategory={byCategory}
+            filter={state.filter}
+            query={query}
+            onQuery={setQuery}
             onSetFilter={setFilter}
-            noData={noData}
-            filteredEmpty={filteredEmpty}
-            selectedId={highlightId}
-            onOpen={open}
-            onResolve={detailHandlers.onResolve}
-            onFollowUp={detailHandlers.onFollowUp}
+            preview={preview}
+            onPreview={setPreview}
           />
-        )}
 
-        <DetailPane request={showLoading ? null : paneRequest} {...detailHandlers} />
+          {showLoading ? (
+            <MiddleLoading />
+          ) : (
+            <Checklist
+              caseData={caseData}
+              groups={groups}
+              filter={state.filter}
+              counts={counts}
+              sort={state.sort}
+              onSetSort={setSort}
+              onSetFilter={setFilter}
+              noData={noData}
+              filteredEmpty={filteredEmpty}
+              selectedId={highlightId}
+              onOpen={open}
+              onResolve={detailHandlers.onResolve}
+              onFollowUp={detailHandlers.onFollowUp}
+            />
+          )}
+
+          <DetailPane request={showLoading ? null : paneRequest} {...detailHandlers} />
+        </div>
       </main>
 
       {/* Mobile/tablet detail overlay — driven by the real selection only */}
@@ -169,19 +175,14 @@ export function Tracker() {
 
 function MiddleLoading() {
   return (
-    <section className="flex min-h-0 flex-col" aria-busy="true" aria-label="Loading requests">
-      <div className="border-b border-hairline px-6 py-4">
-        <span className="block h-5 w-44 animate-pulse rounded bg-sunk" />
+    <section className="flex min-h-0 flex-col bg-transparent" aria-busy="true" aria-label="Loading requests">
+      <div className="border-b border-hairline px-6 py-5">
+        <span className="block h-8 w-48 animate-pulse rounded-full bg-sunk" />
       </div>
       <div className="space-y-6 px-6 py-6">
-        <span className="block h-4 w-28 animate-pulse rounded bg-sunk" />
-        <div className="grid gap-3 sm:grid-cols-2">
-          {Array.from({ length: 2 }).map((_, i) => (
-            <div key={i} className="h-28 animate-pulse rounded-lg border border-hairline bg-surface" />
-          ))}
-        </div>
-        <span className="block h-4 w-24 animate-pulse rounded bg-sunk" />
-        <div className="h-44 animate-pulse rounded-lg border border-hairline bg-surface" />
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="h-20 animate-pulse rounded-2xl border border-white/60 bg-glass-strong shadow-rest" />
+        ))}
       </div>
     </section>
   );

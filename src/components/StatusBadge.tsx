@@ -28,9 +28,7 @@ export function StatusBadge({
   const bucket = bucketForStatus(status);
   const pad = size === "sm" ? "px-1.5 py-0.5" : "px-2 py-1";
   return (
-    <span
-      className={`inline-flex items-center gap-1.5 rounded-sm border text-badge font-medium ${pad} ${bucketBadgeClasses[bucket]}`}
-    >
+    <span className={`inline-flex items-center gap-1.5 rounded-full border text-badge font-medium shadow-rest backdrop-blur-xl ${pad} ${bucketBadgeClasses[bucket]}`}>
       <StatusGlyph bucket={bucket} />
       {rawStatusLabel[status]}
     </span>

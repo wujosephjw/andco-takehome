@@ -15,7 +15,9 @@ export function EmptyState({
   if (variant === "filtered") {
     return (
       <div className="flex flex-col items-center gap-3 px-6 py-16 text-center">
-        <Inbox className="size-7 text-hairline-strong" />
+        <span className="grid size-12 place-items-center rounded-full border border-white/70 bg-glass-strong shadow-rest">
+          <Inbox className="size-6 text-ink-faint" />
+        </span>
         <p className="text-body text-ink-muted">No requests match these filters.</p>
         {onClearFilters && (
           <Button variant="ghost" onClick={onClearFilters}>
@@ -28,10 +30,12 @@ export function EmptyState({
 
   return (
     <div className="flex flex-col items-center gap-3 px-6 py-20 text-center">
-      <Inbox className="size-8 text-hairline-strong" />
-      <h3 className="font-display text-section text-ink">No document requests yet</h3>
+      <span className="grid size-14 place-items-center rounded-full border border-white/70 bg-glass-strong shadow-rest">
+        <Inbox className="size-7 text-ink-faint" />
+      </span>
+      <h3 className="text-section font-medium text-ink">No document requests yet</h3>
       <p className="max-w-xs text-body text-ink-muted">
-        When you request records, they&rsquo;ll appear here — sorted by what needs
+        When you request records, they&rsquo;ll appear here, sorted by what needs
         you first.
       </p>
       <Button className="mt-1">New request</Button>

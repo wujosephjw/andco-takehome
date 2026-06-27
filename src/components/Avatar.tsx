@@ -11,7 +11,7 @@ function initialsOf(name: string): string {
 export function Avatar({ name, className }: { name: string; className?: string }) {
   return (
     <span
-      className={`inline-flex size-5 items-center justify-center rounded-full border border-white/70 bg-glass-strong text-[10px] font-medium text-ink-muted shadow-rest ${className ?? ""}`}
+      className={`liquid-control inline-flex size-5 items-center justify-center rounded-full border border-white/70 bg-glass-strong text-[10px] font-medium text-ink-muted shadow-rest ${className ?? ""}`}
       title={name}
       aria-hidden
     >

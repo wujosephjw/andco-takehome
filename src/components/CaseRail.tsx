@@ -29,8 +29,8 @@ function NavItem({
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`flex h-9 w-full items-center gap-2.5 rounded-xl px-3 text-left text-body transition-colors ${
-        active ? "bg-glass-strong font-medium text-ink shadow-rest" : "text-ink-muted hover:bg-glass-strong hover:text-ink"
+      className={`liquid-row flex h-9 w-full items-center gap-2.5 rounded-xl px-3 text-left text-body ${
+        active ? "bg-glass-strong font-medium text-ink shadow-rest" : "text-ink-muted hover:bg-white/54 hover:text-ink"
       }`}
     >
       {children}
@@ -61,18 +61,14 @@ export function CaseRail({
   return (
     <aside className="hidden min-h-0 flex-col border-r border-white/50 bg-white/28 lg:flex">
       <div className="px-5 pb-4 pt-5">
-        <div className="mb-5 flex items-center gap-2.5">
-          <span className="grid size-8 shrink-0 place-items-center rounded-full bg-glass-strong text-ink shadow-rest">
+        <div className="flex items-center gap-2.5">
+          <span className="liquid-control grid size-8 shrink-0 place-items-center rounded-full border border-white/70 bg-glass-strong text-ink shadow-rest">
             <span className="size-2.5 rounded-full bg-dot-needs" aria-hidden />
           </span>
           <div className="min-w-0">
             <p className="truncate text-body font-medium text-ink">{caseData.matterName}</p>
-            <p className="truncate text-meta text-ink-faint">Document requests</p>
           </div>
         </div>
-        <p className="text-meta text-ink-muted">
-          {caseData.clientName} · {caseData.matterType}
-        </p>
       </div>
 
       <div className="px-4 pb-4">
@@ -82,7 +78,7 @@ export function CaseRail({
             value={query}
             onChange={(e) => onQuery(e.target.value)}
             placeholder="Search requests"
-            className="h-10 w-full rounded-full border border-white/70 bg-glass-strong pl-9 pr-3 text-body text-ink shadow-rest placeholder:text-ink-faint backdrop-blur-xl"
+            className="liquid-control h-10 w-full rounded-full border border-white/70 bg-glass-strong pl-9 pr-3 text-body text-ink shadow-rest placeholder:text-ink-faint"
           />
         </div>
       </div>
@@ -120,7 +116,7 @@ export function CaseRail({
         ))}
 
         {counts.byBucket.closed > 0 && (
-          <label className="mt-4 flex cursor-pointer select-none items-center gap-2 rounded-xl px-3 py-2 text-meta text-ink-muted hover:bg-glass-strong">
+          <label className="liquid-row mt-4 flex cursor-pointer select-none items-center gap-2 rounded-xl px-3 py-2 text-meta text-ink-muted hover:bg-white/54">
             <input
               type="checkbox"
               checked={filter.includeCanceled}

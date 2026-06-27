@@ -49,7 +49,7 @@ function NoteComposer({ onAdd }: { onAdd: (text: string) => void }) {
             if (e.key === "Enter") submit();
           }}
           placeholder="Log a call, a follow-up..."
-          className="h-10 min-w-0 flex-1 rounded-full border border-white/70 bg-glass-strong px-4 text-body text-ink shadow-rest placeholder:text-ink-faint backdrop-blur-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+          className="liquid-control h-10 min-w-0 flex-1 rounded-full border border-white/70 bg-glass-strong px-4 text-body text-ink shadow-rest placeholder:text-ink-faint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
         />
         <Button variant="ghost" onClick={submit} disabled={!text.trim()}>
           Add
@@ -117,7 +117,7 @@ export function RequestDetail({
             type="button"
             onClick={onClose}
             aria-label="Close details"
-            className="-mr-1 rounded-full border border-transparent p-1 text-ink-muted transition-colors hover:border-white/70 hover:bg-glass-strong hover:text-ink"
+            className="liquid-control -mr-1 rounded-full border border-transparent p-1 text-ink-muted hover:border-white/70 hover:bg-glass-strong hover:text-ink"
           >
             <Close className="size-4" />
           </button>
@@ -125,7 +125,7 @@ export function RequestDetail({
       </div>
 
       <div className="flex-1 overflow-y-auto px-5 py-5">
-        <dl className="grid grid-cols-2 gap-x-4 gap-y-4 rounded-[22px] border border-white/60 bg-white/30 p-4 shadow-rest backdrop-blur-xl">
+        <dl className="liquid-surface grid grid-cols-2 gap-x-4 gap-y-4 rounded-[22px] border border-white/60 bg-white/30 p-4 shadow-rest">
           <Fact label="Requested">{shortDate(request.requestedAt)}</Fact>
           <Fact label="Due">
             <DueLabel request={request} />
@@ -143,7 +143,7 @@ export function RequestDetail({
 
         {request.attentionReason && (
           <div
-            className={`mt-5 rounded-md border p-3 ${
+            className={`liquid-surface mt-5 rounded-2xl border p-3 ${
               blocked ? "border-white/70 bg-white/52" : "border-white/60 bg-white/35"
             }`}
           >

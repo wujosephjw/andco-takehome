@@ -11,7 +11,7 @@ const PILL: Record<Category, string> = {
 export function CategoryPill({ category, className }: { category: Category; className?: string }) {
   return (
     <span
-      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium shadow-rest backdrop-blur-xl ${PILL[category]} ${className ?? ""}`}
+      className={`liquid-control inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium shadow-rest ${PILL[category]} ${className ?? ""}`}
     >
       {categoryLabel[category]}
     </span>

@@ -107,7 +107,7 @@ export function Tracker() {
   // Initial fetch (case not yet loaded): a brief neutral skeleton, no chrome to flash.
   if (!caseData) {
     return (
-      <main className="grid min-h-dvh place-items-center bg-paper p-5">
+      <main className="grid min-h-dvh place-items-center bg-transparent p-5">
         <div
           className="liquid-frame flex min-h-56 w-full max-w-sm flex-col items-center justify-center gap-3 rounded-[28px] border border-white/70 bg-glass-strong shadow-window"
           aria-busy="true"
@@ -122,8 +122,8 @@ export function Tracker() {
 
   return (
     <>
-      <main className="min-h-dvh overflow-hidden bg-paper lg:grid lg:place-items-center lg:p-6">
-        <div className="liquid-frame grid h-dvh w-full grid-cols-1 bg-glass lg:h-[calc(100dvh-3rem)] lg:max-w-[1500px] lg:grid-cols-[252px_minmax(0,1fr)_392px] lg:rounded-[30px] lg:border lg:border-white/70 lg:shadow-window">
+      <main className="min-h-dvh overflow-hidden bg-transparent lg:grid lg:place-items-center lg:p-6">
+        <div className="liquid-frame grid h-dvh w-full grid-cols-1 bg-glass lg:h-[calc(100dvh-3rem)] lg:max-w-[1500px] lg:grid-cols-[252px_minmax(0,1fr)_392px] lg:rounded-[30px] lg:border lg:border-white/80 lg:shadow-window">
           <CaseRail
             caseData={caseData}
             counts={counts}
@@ -169,12 +169,12 @@ export function Tracker() {
 function MiddleLoading() {
   return (
     <section className="flex min-h-0 flex-col bg-transparent" aria-busy="true" aria-label="Loading requests">
-      <div className="border-b border-hairline px-6 py-5">
+      <div className="border-b border-white/50 bg-white/18 px-6 py-5 backdrop-blur-2xl">
         <span className="block h-8 w-48 animate-pulse rounded-full bg-sunk" />
       </div>
       <div className="space-y-6 px-6 py-6">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="h-20 animate-pulse rounded-2xl border border-white/60 bg-glass-strong shadow-rest" />
+          <div key={i} className="h-20 animate-pulse rounded-2xl border border-white/70 bg-glass-strong shadow-rest" />
         ))}
       </div>
     </section>

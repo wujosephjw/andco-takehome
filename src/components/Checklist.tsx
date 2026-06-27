@@ -33,8 +33,8 @@ function ActionCard({ r, selectedId, onOpen, onResolve, onFollowUp }: { r: Reque
       tabIndex={0}
       onClick={() => onOpen(r.id)}
       onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), onOpen(r.id))}
-      className={`liquid-surface cursor-pointer rounded-[22px] border border-white/70 bg-glass-strong p-4 shadow-card hover:bg-white/75 ${
-        selected ? "ring-2 ring-brand/80" : ""
+      className={`liquid-surface min-w-0 cursor-pointer rounded-[22px] border border-white/75 bg-glass-strong p-4 shadow-card hover:border-white/90 hover:bg-white/82 ${
+        selected ? "bg-white/84 shadow-lift ring-1 ring-brand/65" : ""
       }`}
     >
       <div className="flex items-start justify-between gap-3">
@@ -60,7 +60,7 @@ function ActionCard({ r, selectedId, onOpen, onResolve, onFollowUp }: { r: Reque
           <span aria-hidden>·</span>
           <AssigneeChip name={r.assignee} />
         </span>
-        <span className="flex items-center gap-2">
+        <span className="flex max-w-full flex-wrap items-center justify-end gap-2">
           <Button variant="ghost" onClick={(e) => (e.stopPropagation(), onFollowUp(r.id))}>
             Follow up
           </Button>
@@ -79,7 +79,7 @@ function RequestRow({ r, bucket, selectedId, onOpen }: { r: Request; bucket: Buc
       type="button"
       onClick={() => onOpen(r.id)}
       className={`liquid-row flex min-h-16 w-full items-center gap-3 px-4 py-3 text-left ${
-        selected ? "bg-white/78 shadow-rest" : "hover:bg-white/58"
+        selected ? "bg-white/82 shadow-rest ring-1 ring-white/70" : "hover:bg-white/76 hover:text-ink"
       }`}
     >
       <StatusDot bucket={bucket} />
@@ -105,8 +105,8 @@ function CollectedChip({ r, selectedId, onOpen }: { r: Request } & Pick<RowHandl
     <button
       type="button"
       onClick={() => onOpen(r.id)}
-      className={`liquid-control inline-flex items-center gap-2.5 rounded-full border border-white/70 bg-glass-strong py-2 pl-2.5 pr-3 shadow-rest hover:bg-white/70 ${
-        selected ? "ring-2 ring-brand/80" : ""
+      className={`liquid-control inline-flex items-center gap-2.5 rounded-full border border-white/75 bg-glass-strong py-2 pl-2.5 pr-3 shadow-rest hover:border-white/90 hover:bg-white/78 ${
+        selected ? "ring-1 ring-brand/65" : ""
       }`}
     >
       <span className="grid size-5 place-items-center rounded-full border border-white/70 bg-white/70 text-ink-muted">
@@ -122,7 +122,7 @@ function CollectedChip({ r, selectedId, onOpen }: { r: Request } & Pick<RowHandl
 function GroupSection({ group, handlers }: { group: Group; handlers: RowHandlers }) {
   const { bucket, label, hint, items } = group;
   return (
-    <section>
+    <section className="min-w-0">
       <header className="mb-3 flex items-center gap-2.5 px-1">
         <StatusDot bucket={bucket} />
         <h2 className="text-body font-medium text-ink">{label}</h2>
@@ -134,7 +134,7 @@ function GroupSection({ group, handlers }: { group: Group; handlers: RowHandlers
       </header>
 
       {bucket === "needs_you" ? (
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid min-w-0 gap-3 sm:grid-cols-2">
           {items.map((r) => (
             <ActionCard key={r.id} r={r} {...handlers} />
           ))}
@@ -146,7 +146,7 @@ function GroupSection({ group, handlers }: { group: Group; handlers: RowHandlers
           ))}
         </div>
       ) : (
-        <div className="liquid-surface divide-y divide-hairline overflow-hidden rounded-[22px] border border-white/70 bg-glass-strong shadow-card">
+        <div className="liquid-surface divide-y divide-hairline overflow-hidden rounded-[22px] border border-white/75 bg-white/50 shadow-card">
           {items.map((r) => (
             <RequestRow key={r.id} r={r} bucket={bucket} selectedId={handlers.selectedId} onOpen={handlers.onOpen} />
           ))}
@@ -168,7 +168,7 @@ function MobilePills({
   onSetFilter: (p: Partial<FilterSpec>) => void;
 }) {
   return (
-    <div className="flex gap-1.5 overflow-x-auto pb-0.5 lg:hidden">
+    <div className="flex min-w-0 gap-1.5 overflow-x-auto pb-0.5 lg:hidden">
       {MOBILE_BUCKETS.map((b) => {
         const active = filter.bucket === b;
         const count = b ? counts.byBucket[b] : counts.total;
@@ -178,7 +178,7 @@ function MobilePills({
             type="button"
             onClick={() => onSetFilter({ bucket: b })}
             className={`liquid-control inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-meta font-medium shadow-rest ${
-              active ? "border-white/80 bg-white/80 text-ink" : "border-white/60 bg-glass-strong text-ink-muted"
+              active ? "border-white/90 bg-white/82 text-ink" : "border-white/70 bg-glass-strong text-ink-muted hover:bg-white/74"
             }`}
           >
             {b && <StatusDot bucket={b} />}
@@ -220,10 +220,10 @@ export function Checklist({
   filteredEmpty: boolean;
 } & RowHandlers) {
   return (
-    <section className="flex min-h-0 flex-col bg-transparent">
+    <section className="flex min-h-0 min-w-0 flex-col bg-transparent">
       {/* Panel header */}
-      <div className="flex flex-col gap-3 border-b border-white/50 px-5 py-5 sm:px-6">
-        <div className="flex items-center justify-between gap-3">
+      <div className="flex min-w-0 flex-col gap-3 border-b border-white/60 bg-white/16 px-5 py-5 backdrop-blur-2xl sm:px-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
             <p className="truncate text-meta text-ink-faint lg:hidden">{caseData.clientName}</p>
             <h2 className="truncate text-section font-medium text-ink lg:text-subhead">
@@ -231,12 +231,12 @@ export function Checklist({
               <span className="hidden lg:inline">Document checklist</span>
             </h2>
           </div>
-          <label className="flex shrink-0 items-center gap-2 text-meta text-ink-muted">
+          <label className="flex w-full items-center gap-2 text-meta text-ink-muted sm:w-auto sm:shrink-0">
             <span className="text-ink-faint">Sort</span>
             <select
               value={sort}
               onChange={(e) => onSetSort(e.target.value as SortKey)}
-              className="liquid-control h-9 rounded-full border border-white/70 bg-glass-strong px-3 text-meta text-ink shadow-rest"
+              className="liquid-control h-9 min-w-0 flex-1 rounded-full border border-white/75 bg-glass-strong px-3 text-meta text-ink shadow-rest hover:bg-white/76 sm:flex-none"
             >
               {SORTS.map((s) => (
                 <option key={s.key} value={s.key}>
@@ -250,7 +250,7 @@ export function Checklist({
       </div>
 
       {/* Body */}
-      <div className="min-h-0 flex-1 space-y-7 overflow-y-auto px-5 py-6 sm:px-6">
+      <div className="min-h-0 min-w-0 flex-1 space-y-7 overflow-y-auto px-5 py-6 sm:px-6">
         {noData ? (
           <EmptyState variant="no-data" />
         ) : filteredEmpty ? (

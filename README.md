@@ -4,7 +4,7 @@ One screen for a single personal-injury case (*Delgado v. Whitfield*) that lets 
 paralegal answer three questions at a glance: **what's done, what's stuck, and
 what needs me right now?**
 
-**Live:** https://wujosephjw.github.io/andco-takehome/
+**Live:** https://andco-takehome.vercel.app
 &nbsp;·&nbsp; React 19 · Next.js 16 (App Router, static export) · TypeScript (strict) · Tailwind v4
 
 > Use the **Preview: Live / Loading / Empty** switch in the top-right to see all
@@ -110,7 +110,8 @@ machine (loading / empty / ready).
 
 ## Deploy
 
-`.github/workflows/deploy.yml` builds the static export and publishes to GitHub
-Pages on push to `main` (pnpm → `configure-pages` feeds the repo base path →
-`pnpm build` → `touch out/.nojekyll` so the `_next/` dir survives → `deploy-pages`).
-One-time repo setting: **Settings → Pages → Source = "GitHub Actions."**
+`output: 'export'` produces a host-agnostic static site in `out/`, deployed to
+**Vercel** (https://andco-takehome.vercel.app) — chosen over GitHub Pages because
+the repo is private. `next.config.ts` keeps `basePath` env-driven, so the same
+build runs at `/` locally and on Vercel, or under a repo subpath if it ever moves
+to Pages.

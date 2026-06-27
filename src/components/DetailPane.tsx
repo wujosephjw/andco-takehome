@@ -8,7 +8,7 @@ export function DetailPane({
   ...handlers
 }: { request: Request | null } & DetailHandlers) {
   return (
-    <aside className="hidden min-h-0 flex-col border-l border-white/50 bg-white/24 lg:flex">
+    <aside className="hidden min-h-0 flex-col border-l border-white/60 bg-white/18 backdrop-blur-3xl lg:flex">
       {request ? (
         <RequestDetail request={request} {...handlers} />
       ) : (

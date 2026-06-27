@@ -30,7 +30,7 @@ function NavItem({
       onClick={onClick}
       aria-pressed={active}
       className={`liquid-row flex h-9 w-full items-center gap-2.5 rounded-xl px-3 text-left text-body ${
-        active ? "bg-glass-strong font-medium text-ink shadow-rest" : "text-ink-muted hover:bg-white/54 hover:text-ink"
+        active ? "bg-white/78 font-medium text-ink shadow-rest ring-1 ring-white/70" : "text-ink-muted hover:bg-white/74 hover:text-ink"
       }`}
     >
       {children}
@@ -59,7 +59,7 @@ export function CaseRail({
   onSetFilter: (patch: Partial<FilterSpec>) => void;
 }) {
   return (
-    <aside className="hidden min-h-0 flex-col border-r border-white/50 bg-white/28 lg:flex">
+    <aside className="hidden min-h-0 flex-col border-r border-white/60 bg-white/18 backdrop-blur-3xl lg:flex">
       <div className="px-5 pb-4 pt-5">
         <div className="flex items-center gap-2.5">
           <span className="liquid-control grid size-8 shrink-0 place-items-center rounded-full border border-white/70 bg-glass-strong text-ink shadow-rest">
@@ -116,7 +116,7 @@ export function CaseRail({
         ))}
 
         {counts.byBucket.closed > 0 && (
-          <label className="liquid-row mt-4 flex cursor-pointer select-none items-center gap-2 rounded-xl px-3 py-2 text-meta text-ink-muted hover:bg-white/54">
+          <label className="liquid-row mt-4 flex cursor-pointer select-none items-center gap-2 rounded-xl px-3 py-2 text-meta text-ink-muted hover:bg-white/74 hover:text-ink">
             <input
               type="checkbox"
               checked={filter.includeCanceled}
@@ -128,7 +128,7 @@ export function CaseRail({
         )}
       </nav>
 
-      <div className="space-y-3 border-t border-white/50 px-4 py-4">
+      <div className="space-y-3 border-t border-white/60 bg-white/12 px-4 py-4 backdrop-blur-2xl">
         <Button className="w-full">
           <Plus className="size-4" />
           New request

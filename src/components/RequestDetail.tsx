@@ -37,7 +37,7 @@ function NoteComposer({ onAdd }: { onAdd: (text: string) => void }) {
     setText("");
   };
   return (
-    <div className="mt-6 border-t border-white/50 pt-4">
+    <div className="mt-6 border-t border-white/60 pt-4">
       <label className="mb-2 block text-meta font-medium text-ink-muted">
         Add a note
       </label>
@@ -81,7 +81,7 @@ function Footer({
   if (!primary && !showFollow) return null;
 
   return (
-    <div className="flex items-center gap-2 border-t border-white/50 px-5 py-4">
+    <div className="flex items-center gap-2 border-t border-white/60 bg-white/14 px-5 py-4 backdrop-blur-2xl">
       {showFollow && (
         <Button variant="ghost" className={primary ? "" : "flex-1"} onClick={() => onFollowUp(request.id)}>
           Follow up
@@ -103,7 +103,7 @@ export function RequestDetail({
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-start justify-between gap-3 border-b border-white/50 px-5 py-5">
+      <div className="flex items-start justify-between gap-3 border-b border-white/60 bg-white/14 px-5 py-5 backdrop-blur-2xl">
         <div className="min-w-0">
           <div className="mb-2 flex items-center gap-2">
             <StatusBadge status={request.status} />
@@ -125,7 +125,7 @@ export function RequestDetail({
       </div>
 
       <div className="flex-1 overflow-y-auto px-5 py-5">
-        <dl className="liquid-surface grid grid-cols-2 gap-x-4 gap-y-4 rounded-[22px] border border-white/60 bg-white/30 p-4 shadow-rest">
+        <dl className="liquid-surface grid grid-cols-2 gap-x-4 gap-y-4 rounded-[22px] border border-white/70 bg-white/42 p-4 shadow-rest">
           <Fact label="Requested">{shortDate(request.requestedAt)}</Fact>
           <Fact label="Due">
             <DueLabel request={request} />
@@ -144,7 +144,7 @@ export function RequestDetail({
         {request.attentionReason && (
           <div
             className={`liquid-surface mt-5 rounded-2xl border p-3 ${
-              blocked ? "border-white/70 bg-white/52" : "border-white/60 bg-white/35"
+              blocked ? "border-white/80 bg-white/60" : "border-white/70 bg-white/42"
             }`}
           >
             <p

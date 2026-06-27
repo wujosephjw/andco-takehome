@@ -1,26 +1,137 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ─────────────────────────────────────────────────────────────────────────
+   Design tokens — the single source of truth.
+   Tailwind v4 turns each token below into utilities automatically:
+     --color-paper      → bg-paper / text-paper / border-paper
+     --font-display     → font-display
+     --text-section     → text-section (size + line-height in one utility)
+     --radius-lg        → rounded-lg     --shadow-card → shadow-card
+   Adding a token here is the only place colors / type / spacing are defined.
+   ───────────────────────────────────────────────────────────────────────── */
+@theme {
+  /* Fonts — bridge the next/font css variables set on <html> */
+  --font-display: var(--font-lora);        /* Lora serif — editorial headings only   */
+  --font-sans: var(--font-geist-sans);     /* Geist — all UI + data                   */
+  --font-mono: var(--font-geist-mono);     /* Geist Mono — page-count fractions       */
+
+  /* Neutrals — warm paper, never pure white */
+  --color-paper: #f5f3ef;          /* app background                          */
+  --color-surface: #fbfaf7;        /* cards / rows, a hair lighter than paper */
+  --color-surface-hover: #f1efe9;  /* row hover                               */
+  --color-sunk: #efede7;           /* recessed wells, overview strip, skeleton*/
+  --color-ink: #1a1a1a;            /* primary text                            */
+  --color-ink-muted: #56544e;      /* secondary text (~7:1)                   */
+  --color-ink-faint: #8a877f;      /* tertiary, non-essential only            */
+  --color-hairline: #e3e0d8;       /* 1px dividers / borders                  */
+  --color-hairline-strong: #d6d2c8;/* drawer edge, focused border             */
+
+  /* Sage — the one accent, used sparingly */
+  --color-sage: #7a8c6e;
+  --color-sage-hover: #6b7d60;
+  --color-sage-active: #5e6f54;
+  --color-sage-tint: #ecefe7;
+  --color-sage-ink: #404a36;
+  --color-sage-onfill: #f7f8f4;
+
+  /* Status buckets — muted bg / border / text triplets */
+  /* needs_you — warm clay (the only "loud" family, and it's restrained) */
+  --color-needs-bg: #f2e4da;
+  --color-needs-border: #e0c7b6;
+  --color-needs-text: #8a4b2f;
+  --color-needs-accent: #b5613a;   /* 4px left rule on attention cards */
+  /* in_flight — cool parchment blue-grey */
+  --color-flight-bg: #e6eaec;
+  --color-flight-border: #cdd5d9;
+  --color-flight-text: #495a63;
+  /* done — sage, quiet resolution */
+  --color-done-bg: #ecefe7;
+  --color-done-border: #d2d9c6;
+  --color-done-text: #404a36;
+  /* draft — faded grey, not yet real */
+  --color-draft-bg: #eceae4;
+  --color-draft-border: #dddad2;
+  --color-draft-text: #76736b;
+  /* closed — fainter grey, deprioritized */
+  --color-closed-bg: #efeeea;
+  --color-closed-border: #e0ddd6;
+  --color-closed-text: #908c83;
+
+  /* Overdue — a flag on the due cell only, never the whole row */
+  --color-overdue: #a23b23;
+  --color-overdue-dot: #b5613a;
+
+  /* Category accents — low-chroma, never compete with status */
+  --color-cat-medical: #5b6e8c;
+  --color-cat-police: #7a6e8c;
+  --color-cat-insurance: #8c7a5b;
+
+  /* Type scale — size paired with line-height */
+  --text-display: 1.75rem;     --text-display--line-height: 2.125rem;  /* 28/34 Lora */
+  --text-count: 1.625rem;      --text-count--line-height: 1.875rem;    /* 26/30 Lora */
+  --text-section: 1.1875rem;   --text-section--line-height: 1.625rem;  /* 19/26 Lora */
+  --text-subhead: 1rem;        --text-subhead--line-height: 1.375rem;  /* 16/22 */
+  --text-row: 0.9375rem;       --text-row--line-height: 1.25rem;       /* 15/20 */
+  --text-body: 0.875rem;       --text-body--line-height: 1.3125rem;    /* 14/21 */
+  --text-meta: 0.8125rem;      --text-meta--line-height: 1.125rem;     /* 13/18 */
+  --text-badge: 0.6875rem;     --text-badge--line-height: 0.875rem;    /* 11/14 */
+  --text-label: 0.6875rem;     --text-label--line-height: 0.875rem;    /* 11/14 uppercase */
+
+  /* Radius */
+  --radius-sm: 0.25rem;   /* badges / tags  */
+  --radius-md: 0.5rem;    /* inputs / chips */
+  --radius-lg: 0.625rem;  /* cards / panel  */
+  --radius-xl: 0.75rem;   /* drawer         */
+
+  /* Shadow — minimal; editorial reads almost flat */
+  --shadow-rest: 0 1px 2px rgba(26, 24, 20, 0.04);
+  --shadow-card: 0 1px 3px rgba(138, 75, 47, 0.06);   /* warm lift on attention cards */
+  --shadow-lift: 0 4px 14px rgba(26, 24, 20, 0.08);
+  --shadow-drawer: -8px 0 32px rgba(26, 24, 20, 0.1);
+  --shadow-toast: 0 6px 20px rgba(26, 24, 20, 0.18);
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --animate-drain: drain 5s linear forwards; /* undo-toast countdown bar */
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@keyframes drain {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  html {
+    background-color: var(--color-paper);
+  }
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  /* Sage focus ring on every interactive element, keyboard-only */
+  :focus-visible {
+    outline: 2px solid var(--color-sage);
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+  /* Tabular figures for any numeric data cell */
+  .tnum {
+    font-feature-settings: "tnum" 1;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
 }

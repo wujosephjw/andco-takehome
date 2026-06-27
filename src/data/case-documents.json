@@ -1,0 +1,181 @@
+{
+  "case": {
+    "id": "case_8f2a",
+    "matter_name": "Delgado v. Whitfield",
+    "client_name": "Maria Delgado",
+    "matter_type": "Motor Vehicle Accident",
+    "date_of_incident": "2026-02-18",
+    "assigned_paralegal": "Jordan Reyes",
+    "opened_at": "2026-03-02"
+  },
+  "requests": [
+    {
+      "id": "req_001",
+      "category": "police",
+      "document_type": "Traffic Collision Report",
+      "source": "San Francisco Police Department",
+      "status": "received",
+      "assignee": "Jordan Reyes",
+      "requested_at": "2026-03-04",
+      "due_at": "2026-04-03",
+      "updated_at": "2026-03-19",
+      "pages_received": 12,
+      "pages_expected": 12,
+      "activity": [
+        { "at": "2026-03-04", "text": "Request submitted via online portal" },
+        { "at": "2026-03-11", "text": "Department acknowledged, assigned reference #SF-44820" },
+        { "at": "2026-03-19", "text": "Report received (12 pages)" }
+      ]
+    },
+    {
+      "id": "req_002",
+      "category": "medical",
+      "document_type": "Medical Records — Emergency Dept.",
+      "source": "Zuckerberg SF General Hospital",
+      "status": "received",
+      "assignee": "Jordan Reyes",
+      "requested_at": "2026-03-10",
+      "due_at": "2026-04-09",
+      "updated_at": "2026-04-01",
+      "pages_received": 84,
+      "pages_expected": 84
+    },
+    {
+      "id": "req_003",
+      "category": "medical",
+      "document_type": "Medical Records — Radiology",
+      "source": "Kaiser Permanente, Oakland",
+      "status": "needs_action",
+      "assignee": "Jordan Reyes",
+      "requested_at": "2026-03-12",
+      "due_at": "2026-04-11",
+      "updated_at": "2026-05-28",
+      "action_required": "Provider rejected our HIPAA authorization — client signature is missing on page 2. Re-send signed form.",
+      "activity": [
+        { "at": "2026-03-12", "text": "Request submitted with authorization" },
+        { "at": "2026-05-28", "text": "Provider returned authorization as incomplete (missing signature)" }
+      ]
+    },
+    {
+      "id": "req_004",
+      "category": "medical",
+      "document_type": "Medical Records — Orthopedics",
+      "source": "Bay Area Orthopedic Institute",
+      "status": "in_progress",
+      "assignee": "Jordan Reyes",
+      "requested_at": "2026-04-15",
+      "due_at": "2026-07-01",
+      "updated_at": "2026-06-02",
+      "activity": [
+        { "at": "2026-04-15", "text": "Request submitted" },
+        { "at": "2026-06-02", "text": "Records department confirmed processing, est. 2–3 weeks" }
+      ]
+    },
+    {
+      "id": "req_005",
+      "category": "insurance",
+      "document_type": "Itemized Billing Statement",
+      "source": "Bay Area Orthopedic Institute",
+      "status": "requested",
+      "assignee": "Priya Shah",
+      "requested_at": "2026-04-20",
+      "due_at": "2026-06-19",
+      "updated_at": "2026-04-20"
+    },
+    {
+      "id": "req_006",
+      "category": "medical",
+      "document_type": "Medical Records — Physical Therapy",
+      "source": "Lifelong Physical Therapy",
+      "status": "partially_received",
+      "assignee": "Priya Shah",
+      "requested_at": "2026-03-25",
+      "due_at": "2026-04-24",
+      "updated_at": "2026-06-05",
+      "pages_received": 22,
+      "pages_expected": 40,
+      "activity": [
+        { "at": "2026-03-25", "text": "Request submitted" },
+        { "at": "2026-05-02", "text": "Received visits Jan–Mar (22 pages)" },
+        { "at": "2026-06-05", "text": "Followed up on outstanding Apr–May visit notes" }
+      ]
+    },
+    {
+      "id": "req_007",
+      "category": "insurance",
+      "document_type": "Declarations Page (UM/UIM)",
+      "source": "State Farm",
+      "status": "received",
+      "assignee": "Jordan Reyes",
+      "requested_at": "2026-03-06",
+      "due_at": "2026-04-05",
+      "updated_at": "2026-03-22"
+    },
+    {
+      "id": "req_008",
+      "category": "insurance",
+      "document_type": "Coverage Verification",
+      "source": "GEICO (defendant carrier)",
+      "status": "rejected",
+      "assignee": "Jordan Reyes",
+      "requested_at": "2026-03-08",
+      "due_at": "2026-04-07",
+      "updated_at": "2026-04-30",
+      "reason": "Policy number not found in carrier system. Confirm claim number with the adjuster before resubmitting.",
+      "activity": [
+        { "at": "2026-03-08", "text": "Verification request submitted" },
+        { "at": "2026-04-30", "text": "Carrier returned: no matching policy on file" }
+      ]
+    },
+    {
+      "id": "req_009",
+      "category": "medical",
+      "document_type": "Medical Records — Primary Care",
+      "source": "Pacific Primary Care (Dr. Nguyen)",
+      "status": "on_hold",
+      "assignee": "Priya Shah",
+      "requested_at": "2026-04-02",
+      "due_at": "2026-05-02",
+      "updated_at": "2026-05-10",
+      "reason": "Provider requires a $35 prepayment before releasing records. Awaiting accounting approval.",
+      "activity": [
+        { "at": "2026-04-02", "text": "Request submitted" },
+        { "at": "2026-05-10", "text": "Provider invoice received — $35 prepayment required" }
+      ]
+    },
+    {
+      "id": "req_010",
+      "category": "medical",
+      "document_type": "Medical Records — Imaging Films",
+      "source": "RadNet Imaging",
+      "status": "requested",
+      "assignee": "Jordan Reyes",
+      "requested_at": "2026-04-22",
+      "due_at": "2026-05-22",
+      "updated_at": "2026-04-22"
+    },
+    {
+      "id": "req_011",
+      "category": "police",
+      "document_type": "Supplemental / Body-Cam Footage",
+      "source": "San Francisco Police Department",
+      "status": "draft",
+      "assignee": "Jordan Reyes",
+      "requested_at": null,
+      "due_at": null,
+      "updated_at": "2026-06-10"
+    },
+    {
+      "id": "req_012",
+      "category": "medical",
+      "document_type": "Medical Records — Radiology",
+      "source": "Kaiser Permanente, Oakland",
+      "status": "canceled",
+      "assignee": "Jordan Reyes",
+      "requested_at": "2026-03-12",
+      "due_at": null,
+      "updated_at": "2026-03-14",
+      "reason": "Duplicate of req_003."
+    }
+  ]
+}

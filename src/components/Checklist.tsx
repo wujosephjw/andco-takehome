@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import type { Request, Bucket, Case } from "@/lib/types";
 import type { FilterSpec, SortKey, OverviewCounts } from "@/lib/selectors";
 import { BUCKET_LABEL } from "@/lib/bucket";
@@ -8,7 +9,7 @@ import { DueLabel } from "./DueLabel";
 import { AssigneeChip } from "./Avatar";
 import { Button } from "./Button";
 import { EmptyState } from "./EmptyState";
-import { Check } from "./icons";
+import { Check, ChevronDown } from "./icons";
 
 export interface Group {
   bucket: Bucket;
@@ -212,6 +213,88 @@ const SORTS: { key: SortKey; label: string }[] = [
   { key: "updated", label: "Last updated" },
 ];
 
+function SortMenu({
+  sort,
+  onSetSort,
+}: {
+  sort: SortKey;
+  onSetSort: (s: SortKey) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const selected = SORTS.find((s) => s.key === sort) ?? SORTS[0];
+
+  useEffect(() => {
+    if (!open) return;
+
+    function closeFromOutside(event: PointerEvent) {
+      if (!menuRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    }
+
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("pointerdown", closeFromOutside);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeFromOutside);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [open]);
+
+  return (
+    <div ref={menuRef} className="relative z-50 flex w-full items-center gap-2 text-meta text-ink-muted sm:w-auto sm:shrink-0">
+      <span className="text-ink-faint">Sort</span>
+      <button
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => setOpen((value) => !value)}
+        className="liquid-control glass-focus inline-flex h-9 min-w-[132px] flex-1 items-center justify-between gap-3 rounded-full border border-white/75 bg-glass-strong px-3 text-left text-meta font-medium text-ink shadow-rest hover:bg-white/76 focus-visible:outline-none sm:flex-none"
+      >
+        <span>{selected.label}</span>
+        <ChevronDown className={`size-3.5 text-ink-faint transition-transform duration-300 ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+        <div
+          role="listbox"
+          aria-label="Sort requests"
+          className="liquid-popover absolute right-0 top-[calc(100%+0.5rem)] z-[100] min-w-[168px] overflow-hidden rounded-2xl border border-white/80 bg-white/95 p-1.5 shadow-lift"
+        >
+          {SORTS.map((s) => {
+            const active = s.key === sort;
+            return (
+              <button
+                key={s.key}
+                type="button"
+                role="option"
+                aria-selected={active}
+                onClick={() => {
+                  onSetSort(s.key);
+                  setOpen(false);
+                }}
+                className={`liquid-row flex h-9 w-full items-center justify-between rounded-xl px-3 text-left text-meta ${
+                  active
+                    ? "bg-white/70 font-medium text-ink shadow-rest focus-visible:outline-none"
+                    : "text-ink-muted hover:bg-white/60 hover:text-ink focus-visible:outline-none"
+                }`}
+              >
+                {s.label}
+                {active && <Check className="size-3.5 text-ink-muted" />}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function Checklist({
   caseData,
   groups,
@@ -237,7 +320,7 @@ export function Checklist({
   return (
     <section className="flex min-h-0 min-w-0 flex-col bg-transparent">
       {/* Panel header */}
-      <div className="flex min-w-0 flex-col gap-3 border-b border-white/60 bg-white/16 px-5 py-5 backdrop-blur-2xl sm:px-6">
+      <div className="relative z-20 flex min-w-0 flex-col gap-3 border-b border-white/60 bg-white/16 px-5 py-5 backdrop-blur-2xl sm:px-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
             <p className="truncate text-meta text-ink-faint lg:hidden">{caseData.clientName}</p>
@@ -246,20 +329,7 @@ export function Checklist({
               <span className="hidden lg:inline">Document checklist</span>
             </h2>
           </div>
-          <label className="flex w-full items-center gap-2 text-meta text-ink-muted sm:w-auto sm:shrink-0">
-            <span className="text-ink-faint">Sort</span>
-            <select
-              value={sort}
-              onChange={(e) => onSetSort(e.target.value as SortKey)}
-              className="liquid-control h-9 min-w-0 flex-1 rounded-full border border-white/75 bg-glass-strong px-3 text-meta text-ink shadow-rest hover:bg-white/76 sm:flex-none"
-            >
-              {SORTS.map((s) => (
-                <option key={s.key} value={s.key}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
-          </label>
+          <SortMenu sort={sort} onSetSort={onSetSort} />
         </div>
         <MobilePills filter={filter} counts={counts} onSetFilter={onSetFilter} />
       </div>

@@ -47,6 +47,14 @@ export function ChevronRight({ className }: IconProps) {
   );
 }
 
+export function ChevronDown({ className }: IconProps) {
+  return (
+    <svg {...base(className)}>
+      <path d="M6 9l6 6 6-6" />
+    </svg>
+  );
+}
+
 export function Check({ className }: IconProps) {
   return (
     <svg {...base(className)}>

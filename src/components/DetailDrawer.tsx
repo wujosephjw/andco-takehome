@@ -2,6 +2,20 @@ import { useEffect, useRef, useState } from "react";
 import type { Request } from "@/lib/types";
 import { RequestDetail, type DetailHandlers } from "./RequestDetail";
 
+function useDrawerViewport() {
+  const [isDrawerViewport, setIsDrawerViewport] = useState(false);
+
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 1023px)");
+    const sync = () => setIsDrawerViewport(query.matches);
+    sync();
+    query.addEventListener("change", sync);
+    return () => query.removeEventListener("change", sync);
+  }, []);
+
+  return isDrawerViewport;
+}
+
 /**
  * Mobile/tablet detail: a slide-in overlay (hidden at lg+, where the persistent
  * DetailPane column takes over). Both are driven by the same selectedId.
@@ -11,7 +25,8 @@ export function DetailDrawer({
   onClose,
   ...handlers
 }: { request: Request | null; onClose: () => void } & DetailHandlers) {
-  const open = request !== null;
+  const isDrawerViewport = useDrawerViewport();
+  const open = request !== null && isDrawerViewport;
 
   // Keep last content visible during the close transition.
   const [shown, setShown] = useState<Request | null>(request);
@@ -64,7 +79,7 @@ export function DetailDrawer({
     >
       <div
         onClick={onClose}
-        className={`absolute inset-0 bg-[rgba(17,17,17,0.2)] backdrop-blur-sm transition-opacity duration-200 ${open ? "opacity-100" : "opacity-0"}`}
+        className={`absolute inset-0 bg-[rgba(17,17,17,0.2)] backdrop-blur-sm transition-opacity duration-300 ease-out ${open ? "opacity-100" : "opacity-0"}`}
       />
       <div
         ref={panelRef}
@@ -72,7 +87,7 @@ export function DetailDrawer({
         aria-modal="true"
         aria-label={shown ? shown.documentType : "Request details"}
         tabIndex={-1}
-        className={`absolute right-0 top-0 flex h-full w-[440px] max-w-[92vw] flex-col border-l border-white/60 bg-glass-strong shadow-drawer backdrop-blur-2xl outline-none transition-transform duration-200 ease-out ${open ? "translate-x-0" : "translate-x-full"}`}
+        className={`absolute right-0 top-0 flex h-full w-[440px] max-w-[92vw] flex-col border-l border-white/60 bg-glass-strong shadow-drawer backdrop-blur-2xl outline-none transition-transform duration-500 ease-[var(--ease-liquid)] ${open ? "translate-x-0" : "translate-x-full"}`}
       >
         {shown && <RequestDetail request={shown} onClose={onClose} {...handlers} />}
       </div>

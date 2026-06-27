@@ -22,8 +22,8 @@ import type { PreviewMode } from "./StatePreviewSwitcher";
 
 /** Group order + framing — section labels are action-framed, rail labels are bucket names. */
 const GROUP_DEF: { bucket: Bucket; label: string; hint?: string }[] = [
-  { bucket: "needs_you", label: "Action needed", hint: "Resolve to unblock the case" },
-  { bucket: "in_flight", label: "In progress", hint: "Your team is handling these" },
+  { bucket: "needs_you", label: "Action needed" },
+  { bucket: "in_flight", label: "In progress" },
   { bucket: "done", label: "Collected" },
   { bucket: "draft", label: "Draft" },
   { bucket: "closed", label: "Canceled" },
@@ -114,7 +114,7 @@ export function Tracker() {
     return (
       <main className="grid min-h-dvh place-items-center bg-paper p-5">
         <div
-          className="flex min-h-56 w-full max-w-sm flex-col items-center justify-center gap-3 rounded-[28px] border border-white/70 bg-glass-strong shadow-window backdrop-blur-2xl"
+          className="liquid-frame flex min-h-56 w-full max-w-sm flex-col items-center justify-center gap-3 rounded-[28px] border border-white/70 bg-glass-strong shadow-window"
           aria-busy="true"
           aria-label="Loading case"
         >
@@ -128,7 +128,7 @@ export function Tracker() {
   return (
     <>
       <main className="min-h-dvh overflow-hidden bg-paper lg:grid lg:place-items-center lg:p-6">
-        <div className="grid h-dvh w-full grid-cols-1 overflow-hidden bg-glass backdrop-blur-2xl lg:h-[calc(100dvh-3rem)] lg:max-w-[1500px] lg:grid-cols-[252px_minmax(0,1fr)_392px] lg:rounded-[30px] lg:border lg:border-white/70 lg:shadow-window">
+        <div className="liquid-frame grid h-dvh w-full grid-cols-1 bg-glass lg:h-[calc(100dvh-3rem)] lg:max-w-[1500px] lg:grid-cols-[252px_minmax(0,1fr)_392px] lg:rounded-[30px] lg:border lg:border-white/70 lg:shadow-window">
           <CaseRail
             caseData={caseData}
             counts={counts}

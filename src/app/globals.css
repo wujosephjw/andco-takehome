@@ -41,18 +41,13 @@
   --color-closed-border: rgba(17, 17, 17, 0.06);
   --color-closed-text: #9a9d9c;
 
-  --color-overdue: #a94722;
-  --color-overdue-dot: #ff7a1a;
+  /* The single warm accent in the app — used only for overdue (time at risk). */
+  --color-overdue: #9c4d1c;
+  --color-overdue-dot: #c8631d;
 
   --color-cat-medical: #616665;     --color-cat-medical-bg: rgba(255, 255, 255, 0.64);
   --color-cat-police: #616665;      --color-cat-police-bg: rgba(255, 255, 255, 0.64);
   --color-cat-insurance: #7d683d;   --color-cat-insurance-bg: #eee7d4;
-
-  --color-dot-needs: #ff7a1a;
-  --color-dot-flight: #aeb4b2;
-  --color-dot-done: #5e6663;
-  --color-dot-draft: #c9cecc;
-  --color-dot-closed: #d8dcda;
 
   --color-sage: #6f7773;
   --color-sage-hover: #5d6461;

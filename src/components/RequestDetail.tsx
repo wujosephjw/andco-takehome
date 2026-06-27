@@ -49,7 +49,7 @@ function NoteComposer({ onAdd }: { onAdd: (text: string) => void }) {
             if (e.key === "Enter") submit();
           }}
           placeholder="Log a call, a follow-up..."
-          className="liquid-control h-10 min-w-0 flex-1 rounded-full border border-white/70 bg-glass-strong px-4 text-body text-ink shadow-rest placeholder:text-ink-faint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+          className="liquid-control glass-focus h-10 min-w-0 flex-1 rounded-full border border-white/70 bg-glass-strong px-4 text-body text-ink shadow-rest placeholder:text-ink-faint focus-visible:outline-none"
         />
         <Button variant="ghost" onClick={submit} disabled={!text.trim()}>
           Add

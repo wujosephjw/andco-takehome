@@ -144,7 +144,7 @@ export function RequestDetail({
         {request.attentionReason && (
           <div
             className={`liquid-surface mt-5 rounded-2xl border p-3 ${
-              blocked ? "border-white/80 bg-white/60" : "border-white/70 bg-white/42"
+              blocked ? "border-white/70 bg-white/54" : "border-white/60 bg-white/40"
             }`}
           >
             <p

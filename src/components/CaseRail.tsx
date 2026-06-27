@@ -35,7 +35,7 @@ function NavItem({
       onClick={onClick}
       aria-pressed={active}
       className={`liquid-row flex h-9 w-full items-center gap-2.5 rounded-xl px-3 text-left text-body ${
-        active ? "bg-white/78 font-medium text-ink shadow-rest ring-1 ring-white/70" : "text-ink-muted hover:bg-white/74 hover:text-ink"
+        active ? "bg-white/64 font-medium text-ink shadow-rest ring-1 ring-white/60" : "text-ink-muted hover:bg-white/55 hover:text-ink"
       }`}
     >
       {children}
@@ -121,7 +121,7 @@ export function CaseRail({
         ))}
 
         {counts.byBucket.closed > 0 && (
-          <label className="liquid-row mt-4 flex cursor-pointer select-none items-center gap-2 rounded-xl px-3 py-2 text-meta text-ink-muted hover:bg-white/74 hover:text-ink">
+          <label className="liquid-row mt-4 flex cursor-pointer select-none items-center gap-2 rounded-xl px-3 py-2 text-meta text-ink-muted hover:bg-white/55 hover:text-ink">
             <input
               type="checkbox"
               checked={filter.includeCanceled}

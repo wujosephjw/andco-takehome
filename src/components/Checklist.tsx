@@ -240,16 +240,16 @@ function SortMenu({
 
   return (
     <div ref={menuRef} className="relative z-50 flex w-full items-center gap-2 text-meta text-ink-muted sm:w-auto sm:shrink-0">
-      <span className="text-ink-faint">Sort</span>
+      <span className="font-medium text-ink-muted">Sort</span>
       <button
         type="button"
         aria-haspopup="listbox"
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
-        className="liquid-control glass-focus inline-flex h-9 min-w-[132px] flex-1 items-center justify-between gap-3 rounded-full border border-white/75 bg-glass-strong px-3 text-left text-meta font-medium text-ink shadow-rest hover:bg-white/76 focus-visible:outline-none sm:flex-none"
+        className="liquid-control glass-focus inline-flex h-9 min-w-[142px] flex-1 items-center justify-between gap-3 rounded-full border border-white/85 bg-white/68 px-3.5 text-left text-meta font-semibold text-ink shadow-rest hover:bg-white/78 sm:flex-none"
       >
         <span>{selected.label}</span>
-        <ChevronDown className={`size-3.5 text-ink-faint transition-transform duration-300 ${open ? "rotate-180" : ""}`} />
+        <ChevronDown className={`size-3.5 text-ink-muted transition-transform duration-300 ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
         <div

@@ -1,4 +1,5 @@
 import { TODAY, iso } from "@/lib/clock";
+import { resolvedActivityFor } from "@/lib/nextAction";
 import { DEFAULT_FILTER, type FilterSpec, type SortKey } from "@/lib/selectors";
 import type { Request, Case, ActivityEntry } from "@/lib/types";
 import type { Action } from "./actions";
@@ -65,28 +66,28 @@ export function reducer(state: AppState, action: Action): AppState {
     case "RESOLVE_NEEDS_ACTION":
       return {
         ...state,
-        history: snapshot(state, "Marked resolved", [action.id]),
+        history: snapshot(state, "Moved to In progress", [action.id]),
         requests: patch(state.requests, action.id, (r) => ({
           ...r,
           status: "in_progress",
           attentionReason: null,
           updatedAt: TODAY,
           updatedAtRaw: iso(TODAY),
-          activity: appendActivity(r, "Marked resolved — re-submitted to source"),
+          activity: appendActivity(r, `${resolvedActivityFor(r)} - moved to In progress`),
         })),
       };
 
     case "MARK_RECEIVED":
       return {
         ...state,
-        history: snapshot(state, "Marked received", [action.id]),
+        history: snapshot(state, "Moved to Collected", [action.id]),
         requests: patch(state.requests, action.id, (r) => ({
           ...r,
           status: "received",
           pagesReceived: r.pagesExpected ?? r.pagesReceived,
           updatedAt: TODAY,
           updatedAtRaw: iso(TODAY),
-          activity: appendActivity(r, "Marked received"),
+          activity: appendActivity(r, "Marked received - moved to Collected"),
         })),
       };
 
@@ -139,7 +140,7 @@ export function reducer(state: AppState, action: Action): AppState {
   }
 }
 
-/** Latest undo label, for the toast ("Marked received — Undo"). */
+/** Latest undo label, for the toast ("Moved to Collected - Undo"). */
 export function latestUndoLabel(state: AppState): string | null {
   return state.history.length ? state.history[state.history.length - 1].label : null;
 }

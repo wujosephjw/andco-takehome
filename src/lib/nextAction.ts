@@ -13,3 +13,17 @@ export function resolveLabelFor(r: Request): string {
       return "Mark resolved";
   }
 }
+
+/** Past-tense activity text for the action the paralegal just took. */
+export function resolvedActivityFor(r: Request): string {
+  switch (r.status) {
+    case "needs_action":
+      return "Re-sent signed form";
+    case "rejected":
+      return "Confirmed claim number";
+    case "on_hold":
+      return "Approved fee";
+    default:
+      return "Resolved blocker";
+  }
+}

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { Case, Bucket, Category } from "@/lib/types";
 import type { FilterSpec, OverviewCounts } from "@/lib/selectors";
 import { BUCKET_LABEL } from "@/lib/bucket";
@@ -7,16 +8,6 @@ import { Button } from "./Button";
 import { CategoryIcon, Plus, Search } from "./icons";
 
 const STATUS_BUCKETS: Bucket[] = ["needs_you", "in_flight", "done", "draft"];
-
-/** Compact monogram from the matter name, ignoring "v.", "vs", "x", "&" connectors. */
-function matterInitials(name: string): string {
-  const parties = name
-    .split(/\s+/)
-    .filter((w) => w && !/^(v\.?|vs\.?|x|&|and)$/i.test(w));
-  const picked = (parties.length ? parties : name.split(/\s+/)).slice(0, 2);
-  const initials = picked.map((w) => w[0]?.toUpperCase() ?? "").join("");
-  return initials || name.slice(0, 1).toUpperCase();
-}
 
 function NavItem({
   active,
@@ -67,8 +58,8 @@ export function CaseRail({
     <aside className="hidden min-h-0 flex-col border-r border-white/60 bg-white/18 backdrop-blur-3xl lg:flex">
       <div className="px-5 pb-4 pt-5">
         <div className="flex items-center gap-2.5">
-          <span className="liquid-control grid size-8 shrink-0 place-items-center rounded-full border border-white/70 bg-glass-strong text-[12px] font-semibold tracking-tight text-ink shadow-rest">
-            {matterInitials(caseData.matterName)}
+          <span className="liquid-control grid size-8 shrink-0 place-items-center rounded-full border border-white/70 bg-glass-strong shadow-rest">
+            <Image src="/andco-mark.svg" alt="Andco" width={20} height={20} className="size-5" />
           </span>
           <div className="min-w-0">
             <p className="truncate text-body font-medium text-ink">{caseData.matterName}</p>
@@ -78,12 +69,13 @@ export function CaseRail({
 
       <div className="px-4 pb-4">
         <div className="relative">
-          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink-faint" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink-muted" />
           <input
             value={query}
             onChange={(e) => onQuery(e.target.value)}
+            aria-label="Search requests"
             placeholder="Search requests"
-            className="liquid-control h-10 w-full rounded-full border border-white/70 bg-glass-strong pl-9 pr-3 text-body text-ink shadow-rest placeholder:text-ink-faint"
+            className="liquid-control glass-focus h-10 w-full rounded-full border border-white/85 bg-white/68 pl-9 pr-3 text-body font-medium text-ink shadow-rest placeholder:font-normal placeholder:text-ink-muted hover:bg-white/78 focus-visible:bg-white/82"
           />
         </div>
       </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import type { Request, Bucket, Case } from "@/lib/types";
 import type { FilterSpec, SortKey, OverviewCounts } from "@/lib/selectors";
@@ -8,10 +9,9 @@ import { resolveLabelFor } from "@/lib/nextAction";
 import { StatusDot } from "./StatusDot";
 import { CategoryPill } from "./CategoryPill";
 import { DueLabel } from "./DueLabel";
-import { AssigneeChip } from "./Avatar";
 import { Button } from "./Button";
 import { EmptyState } from "./EmptyState";
-import { Check } from "./icons";
+import { Check, ChevronDown } from "./icons";
 
 export interface Group {
   bucket: Bucket;
@@ -36,16 +36,21 @@ const ENTER = { opacity: 0, scale: 0.96 };
 const SHOWN = { opacity: 1, scale: 1 };
 
 /* ── Action-needed card (needs_you) ───────────────────────────────── */
-function ActionCard({ r, selectedId, onOpen, onResolve, onFollowUp }: { r: Request } & RowHandlers) {
+function ActionCard({ r, selectedId, onOpen, onResolve }: { r: Request } & RowHandlers) {
   const selected = r.id === selectedId;
+  const dimmed = selectedId !== null && !selected;
   return (
     <div
       role="button"
       tabIndex={0}
       onClick={() => onOpen(r.id)}
       onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), onOpen(r.id))}
-      className={`liquid-surface h-full min-w-0 cursor-pointer overflow-hidden rounded-[22px] border border-white/70 bg-white/64 p-4 shadow-card hover:border-white/90 hover:bg-white/74 ${
-        selected ? "bg-white/82 shadow-lift ring-1 ring-brand/55" : ""
+      className={`liquid-surface flex h-full min-w-0 cursor-pointer flex-col rounded-[22px] border p-4 shadow-card ${
+        selected
+          ? "border-white/90 bg-white/90"
+          : dimmed
+            ? "border-white/70 bg-white/64 opacity-65 hover:border-white/90 hover:bg-white/74 hover:opacity-100"
+            : "border-white/70 bg-white/64 hover:border-white/90 hover:bg-white/74"
       }`}
     >
       <div className="flex items-start justify-between gap-3">
@@ -60,24 +65,17 @@ function ActionCard({ r, selectedId, onOpen, onResolve, onFollowUp }: { r: Reque
       </div>
 
       {r.attentionReason && (
-        <p className="mt-3 rounded-2xl border border-white/45 bg-white/30 px-3 py-2 text-body text-ink-muted">
+        <p className="ml-3 mt-3 rounded-2xl border border-white/45 bg-white/30 px-3 py-2 text-body text-ink-muted">
           {r.attentionReason}
         </p>
       )}
 
-      <div className="mt-3.5 flex flex-wrap items-center justify-between gap-3">
-        <span className="inline-flex items-center gap-2 text-meta text-ink-faint">
+      <div className="ml-3 mt-auto flex flex-wrap items-center justify-between gap-3 pt-3.5">
+        <span className="liquid-control inline-flex h-9 items-center rounded-full border border-white/60 bg-glass px-3 shadow-rest">
           <DueLabel request={r} />
-          <span aria-hidden>·</span>
-          <AssigneeChip name={r.assignee} />
         </span>
         <span className="flex max-w-full flex-wrap items-center justify-end gap-2">
-          <Button variant="ghost" onClick={(e) => (e.stopPropagation(), onFollowUp(r.id))}>
-            Follow up
-          </Button>
-          <Button variant="secondary" onClick={(e) => (e.stopPropagation(), onResolve(r.id))}>
-            {resolveLabelFor(r)}
-          </Button>
+          <Button variant="secondary" onClick={(e) => (e.stopPropagation(), onResolve(r.id))}>{resolveLabelFor(r)}</Button>
         </span>
       </div>
     </div>
@@ -92,12 +90,17 @@ function RequestRow({
   onOpen,
 }: { r: Request; bucket: Bucket } & Pick<RowHandlers, "selectedId" | "onOpen">) {
   const selected = r.id === selectedId;
+  const dimmed = selectedId !== null && !selected;
   return (
     <button
       type="button"
       onClick={() => onOpen(r.id)}
       className={`liquid-row flex min-h-16 w-full items-center gap-3 px-4 py-3 text-left ${
-        selected ? "bg-white/66 shadow-rest ring-1 ring-white/60" : "hover:text-ink"
+        selected
+          ? "bg-white/74 shadow-rest"
+          : dimmed
+            ? "opacity-65 hover:text-ink hover:opacity-100"
+            : "hover:text-ink"
       }`}
     >
       <StatusDot bucket={bucket} />
@@ -108,9 +111,6 @@ function RequestRow({
       <CategoryPill category={r.category} className="hidden sm:inline-flex" />
       <span className="w-[112px] shrink-0 text-right">
         <DueLabel request={r} />
-      </span>
-      <span className="hidden xl:inline-flex">
-        <AssigneeChip name={r.assignee} />
       </span>
     </button>
   );
@@ -123,12 +123,17 @@ function CollectedChip({
   onOpen,
 }: { r: Request } & Pick<RowHandlers, "selectedId" | "onOpen">) {
   const selected = r.id === selectedId;
+  const dimmed = selectedId !== null && !selected;
   return (
     <button
       type="button"
       onClick={() => onOpen(r.id)}
-      className={`liquid-control inline-flex items-center gap-2.5 rounded-full border border-white/55 bg-glass-strong py-2 pl-2.5 pr-3 shadow-rest hover:border-white/78 hover:bg-white/64 ${
-        selected ? "ring-1 ring-brand/55" : ""
+      className={`liquid-row inline-flex items-center gap-2.5 rounded-full border py-2 pl-2.5 pr-3 shadow-rest ${
+        selected
+          ? "border-white/80 bg-white/80"
+          : dimmed
+            ? "border-white/55 bg-glass-strong opacity-65 hover:border-white/78 hover:bg-white/64 hover:opacity-100"
+            : "border-white/55 bg-glass-strong hover:border-white/78 hover:bg-white/64"
       }`}
     >
       <span className="grid size-5 place-items-center rounded-full border border-white/70 bg-white/70 text-ink-muted">
@@ -231,6 +236,88 @@ const SORTS: { key: SortKey; label: string }[] = [
   { key: "updated", label: "Last updated" },
 ];
 
+function SortMenu({
+  sort,
+  onSetSort,
+}: {
+  sort: SortKey;
+  onSetSort: (s: SortKey) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const selected = SORTS.find((s) => s.key === sort) ?? SORTS[0];
+
+  useEffect(() => {
+    if (!open) return;
+
+    function closeFromOutside(event: PointerEvent) {
+      if (!menuRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    }
+
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("pointerdown", closeFromOutside);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeFromOutside);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [open]);
+
+  return (
+    <div ref={menuRef} className="relative z-50 flex w-full items-center gap-2 text-meta text-ink-muted sm:w-auto sm:shrink-0">
+      <span className="font-medium text-ink-muted">Sort</span>
+      <button
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => setOpen((value) => !value)}
+        className="liquid-control glass-focus inline-flex h-9 min-w-[142px] flex-1 items-center justify-between gap-3 rounded-full border border-white/85 bg-white/68 px-3.5 text-left text-meta font-semibold text-ink shadow-rest hover:bg-white/78 sm:flex-none"
+      >
+        <span>{selected.label}</span>
+        <ChevronDown className={`size-3.5 text-ink-muted transition-transform duration-300 ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+        <div
+          role="listbox"
+          aria-label="Sort requests"
+          className="liquid-popover absolute right-0 top-[calc(100%+0.5rem)] z-[100] min-w-[168px] overflow-hidden rounded-2xl border border-white/80 bg-white/95 p-1.5 shadow-lift"
+        >
+          {SORTS.map((s) => {
+            const active = s.key === sort;
+            return (
+              <button
+                key={s.key}
+                type="button"
+                role="option"
+                aria-selected={active}
+                onClick={() => {
+                  onSetSort(s.key);
+                  setOpen(false);
+                }}
+                className={`liquid-row flex h-9 w-full items-center justify-between rounded-xl px-3 text-left text-meta ${
+                  active
+                    ? "bg-white/70 font-medium text-ink shadow-rest focus-visible:outline-none"
+                    : "text-ink-muted hover:bg-white/60 hover:text-ink focus-visible:outline-none"
+                }`}
+              >
+                {s.label}
+                {active && <Check className="size-3.5 text-ink-muted" />}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function Checklist({
   caseData,
   groups,
@@ -256,7 +343,7 @@ export function Checklist({
   return (
     <section className="flex min-h-0 min-w-0 flex-col bg-transparent">
       {/* Panel header */}
-      <div className="flex min-w-0 flex-col gap-3 border-b border-white/60 bg-white/16 px-5 py-5 backdrop-blur-2xl sm:px-6">
+      <div className="relative z-20 flex min-w-0 flex-col gap-3 border-b border-white/60 bg-white/16 px-5 py-5 backdrop-blur-2xl sm:px-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
             <p className="truncate text-meta text-ink-faint lg:hidden">{caseData.clientName}</p>
@@ -265,20 +352,7 @@ export function Checklist({
               <span className="hidden lg:inline">Document checklist</span>
             </h2>
           </div>
-          <label className="flex w-full items-center gap-2 text-meta text-ink-muted sm:w-auto sm:shrink-0">
-            <span className="text-ink-faint">Sort</span>
-            <select
-              value={sort}
-              onChange={(e) => onSetSort(e.target.value as SortKey)}
-              className="liquid-control h-9 min-w-0 flex-1 rounded-full border border-white/75 bg-glass-strong px-3 text-meta text-ink shadow-rest hover:bg-white/76 sm:flex-none"
-            >
-              {SORTS.map((s) => (
-                <option key={s.key} value={s.key}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
-          </label>
+          <SortMenu sort={sort} onSetSort={onSetSort} />
         </div>
         <MobilePills filter={filter} counts={counts} onSetFilter={onSetFilter} />
       </div>

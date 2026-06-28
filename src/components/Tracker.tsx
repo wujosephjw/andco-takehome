@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { MotionConfig } from "motion/react";
 import { caseFile } from "@/lib/fixture";
 import { TODAY } from "@/lib/clock";
 import { bucketForStatus } from "@/lib/bucket";
+import { resolvedActivityFor } from "@/lib/nextAction";
 import {
   selectOverview,
   selectNeedsYou,
@@ -27,6 +29,12 @@ const GROUP_DEF: { bucket: Bucket; label: string; hint?: string }[] = [
   { bucket: "draft", label: "Draft" },
   { bucket: "closed", label: "Canceled" },
 ];
+
+// One spring for every layout move. visualDuration is the perceived time to
+// settle; a small bounce gives the organic "release" feel without overshoot
+// that would read as toy-like in a dense list. reducedMotion="user" makes
+// Motion skip to the end for people who ask for less motion.
+const MOVE_SPRING = { type: "spring", visualDuration: 0.34, bounce: 0.12 } as const;
 
 export function Tracker() {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -97,9 +105,22 @@ export function Tracker() {
   const noData = !showLoading && requests.length === 0;
   const filteredEmpty = !showLoading && requests.length > 0 && groups.length === 0;
 
+  // Action-needed CTA clears our blocker → moves to In progress. Mark received → Collected.
+  // The move is immediate; Motion's layout/exit animations choreograph the visual.
+  function resolveRequest(id: string) {
+    const request = requests.find((r) => r.id === id);
+    if (!request) return;
+    mutate({ type: "RESOLVE_NEEDS_ACTION", id }, `${resolvedActivityFor(request)} - In progress`);
+  }
+
+  function markReceived(id: string) {
+    if (!requests.some((r) => r.id === id)) return;
+    mutate({ type: "MARK_RECEIVED", id }, "Moved to Collected");
+  }
+
   const detailHandlers = {
-    onResolve: (id: string) => mutate({ type: "RESOLVE_NEEDS_ACTION", id }, "Marked resolved"),
-    onMarkReceived: (id: string) => mutate({ type: "MARK_RECEIVED", id }, "Marked received"),
+    onResolve: resolveRequest,
+    onMarkReceived: markReceived,
     onFollowUp: (id: string) => mutate({ type: "FOLLOW_UP", id }, "Follow-up logged"),
     onAddNote: (id: string, text: string) => mutate({ type: "ADD_NOTE", id, text }, "Note added"),
   };
@@ -121,7 +142,7 @@ export function Tracker() {
   }
 
   return (
-    <>
+    <MotionConfig transition={MOVE_SPRING} reducedMotion="user">
       <main className="min-h-dvh overflow-hidden bg-transparent lg:grid lg:place-items-center lg:p-6">
         <div className="liquid-frame grid h-dvh w-full grid-cols-1 bg-glass lg:h-[calc(100dvh-3rem)] lg:max-w-[1500px] lg:grid-cols-[252px_minmax(0,1fr)_392px] lg:rounded-[30px] lg:border lg:border-white/80 lg:shadow-window">
           <CaseRail
@@ -162,7 +183,7 @@ export function Tracker() {
       <DetailDrawer request={selected} onClose={close} {...detailHandlers} />
 
       <UndoToast toast={toast} onUndo={undo} onDismiss={() => setToast(null)} />
-    </>
+    </MotionConfig>
   );
 }
 

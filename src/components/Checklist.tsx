@@ -1,3 +1,6 @@
+"use client";
+
+import { AnimatePresence, motion } from "motion/react";
 import type { Request, Bucket, Case } from "@/lib/types";
 import type { FilterSpec, SortKey, OverviewCounts } from "@/lib/selectors";
 import { BUCKET_LABEL } from "@/lib/bucket";
@@ -24,6 +27,14 @@ type RowHandlers = {
   onFollowUp: (id: string) => void;
 };
 
+// Enter/exit is opacity + a whisper of scale only — never size/height. Survivors
+// reflow purely on the compositor via Motion's `layout="position"`, so the blurred
+// glass is never re-rasterized and the whole move reads as one spring. popLayout
+// pulls a leaving item out of flow instantly, so the gap closes while it fades —
+// no two-beat.
+const ENTER = { opacity: 0, scale: 0.96 };
+const SHOWN = { opacity: 1, scale: 1 };
+
 /* ── Action-needed card (needs_you) ───────────────────────────────── */
 function ActionCard({ r, selectedId, onOpen, onResolve, onFollowUp }: { r: Request } & RowHandlers) {
   const selected = r.id === selectedId;
@@ -33,7 +44,7 @@ function ActionCard({ r, selectedId, onOpen, onResolve, onFollowUp }: { r: Reque
       tabIndex={0}
       onClick={() => onOpen(r.id)}
       onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), onOpen(r.id))}
-      className={`liquid-surface min-w-0 cursor-pointer rounded-[22px] border border-white/70 bg-white/64 p-4 shadow-card hover:border-white/90 hover:bg-white/74 ${
+      className={`liquid-surface h-full min-w-0 cursor-pointer overflow-hidden rounded-[22px] border border-white/70 bg-white/64 p-4 shadow-card hover:border-white/90 hover:bg-white/74 ${
         selected ? "bg-white/82 shadow-lift ring-1 ring-brand/55" : ""
       }`}
     >
@@ -64,7 +75,9 @@ function ActionCard({ r, selectedId, onOpen, onResolve, onFollowUp }: { r: Reque
           <Button variant="ghost" onClick={(e) => (e.stopPropagation(), onFollowUp(r.id))}>
             Follow up
           </Button>
-          <Button variant="secondary" onClick={(e) => (e.stopPropagation(), onResolve(r.id))}>{resolveLabelFor(r)}</Button>
+          <Button variant="secondary" onClick={(e) => (e.stopPropagation(), onResolve(r.id))}>
+            {resolveLabelFor(r)}
+          </Button>
         </span>
       </div>
     </div>
@@ -72,7 +85,12 @@ function ActionCard({ r, selectedId, onOpen, onResolve, onFollowUp }: { r: Reque
 }
 
 /* ── In-progress / draft row ──────────────────────────────────────── */
-function RequestRow({ r, bucket, selectedId, onOpen }: { r: Request; bucket: Bucket } & Pick<RowHandlers, "selectedId" | "onOpen">) {
+function RequestRow({
+  r,
+  bucket,
+  selectedId,
+  onOpen,
+}: { r: Request; bucket: Bucket } & Pick<RowHandlers, "selectedId" | "onOpen">) {
   const selected = r.id === selectedId;
   return (
     <button
@@ -99,7 +117,11 @@ function RequestRow({ r, bucket, selectedId, onOpen }: { r: Request; bucket: Buc
 }
 
 /* ── Collected chip (done) ────────────────────────────────────────── */
-function CollectedChip({ r, selectedId, onOpen }: { r: Request } & Pick<RowHandlers, "selectedId" | "onOpen">) {
+function CollectedChip({
+  r,
+  selectedId,
+  onOpen,
+}: { r: Request } & Pick<RowHandlers, "selectedId" | "onOpen">) {
   const selected = r.id === selectedId;
   return (
     <button
@@ -121,8 +143,17 @@ function CollectedChip({ r, selectedId, onOpen }: { r: Request } & Pick<RowHandl
 /* ── A group section ──────────────────────────────────────────────── */
 function GroupSection({ group, handlers }: { group: Group; handlers: RowHandlers }) {
   const { bucket, label, hint, items } = group;
+
+  // The list shell differs per bucket; the per-item Motion wrapper is shared.
+  const containerClass =
+    bucket === "needs_you"
+      ? "relative grid min-w-0 gap-3 sm:grid-cols-2"
+      : bucket === "done"
+        ? "relative flex flex-wrap gap-2.5"
+        : "liquid-surface relative divide-y divide-hairline overflow-hidden rounded-[22px] border border-white/42 bg-white/30 shadow-rest";
+
   return (
-    <section className="min-w-0">
+    <motion.section layout="position" className="min-w-0">
       <header className="mb-3 flex items-center gap-2.5 px-1">
         <StatusDot bucket={bucket} />
         <h2 className="text-body font-medium text-ink">{label}</h2>
@@ -133,26 +164,29 @@ function GroupSection({ group, handlers }: { group: Group; handlers: RowHandlers
         {hint && <span className="text-meta text-ink-faint">{hint}</span>}
       </header>
 
-      {bucket === "needs_you" ? (
-        <div className="grid min-w-0 gap-3 sm:grid-cols-2">
+      <div className={containerClass}>
+        <AnimatePresence mode="popLayout" initial={false}>
           {items.map((r) => (
-            <ActionCard key={r.id} r={r} {...handlers} />
+            <motion.div
+              key={r.id}
+              layout="position"
+              initial={ENTER}
+              animate={SHOWN}
+              exit={ENTER}
+              className={bucket === "needs_you" ? "min-w-0" : bucket === "done" ? "inline-flex" : ""}
+            >
+              {bucket === "needs_you" ? (
+                <ActionCard r={r} {...handlers} />
+              ) : bucket === "done" ? (
+                <CollectedChip r={r} selectedId={handlers.selectedId} onOpen={handlers.onOpen} />
+              ) : (
+                <RequestRow r={r} bucket={bucket} selectedId={handlers.selectedId} onOpen={handlers.onOpen} />
+              )}
+            </motion.div>
           ))}
-        </div>
-      ) : bucket === "done" ? (
-        <div className="flex flex-wrap gap-2.5">
-          {items.map((r) => (
-            <CollectedChip key={r.id} r={r} selectedId={handlers.selectedId} onOpen={handlers.onOpen} />
-          ))}
-        </div>
-      ) : (
-        <div className="liquid-surface divide-y divide-hairline overflow-hidden rounded-[22px] border border-white/42 bg-white/30 shadow-rest">
-          {items.map((r) => (
-            <RequestRow key={r.id} r={r} bucket={bucket} selectedId={handlers.selectedId} onOpen={handlers.onOpen} />
-          ))}
-        </div>
-      )}
-    </section>
+        </AnimatePresence>
+      </div>
+    </motion.section>
   );
 }
 
@@ -249,16 +283,20 @@ export function Checklist({
         <MobilePills filter={filter} counts={counts} onSetFilter={onSetFilter} />
       </div>
 
-      {/* Body */}
-      <div className="min-h-0 min-w-0 flex-1 space-y-7 overflow-y-auto px-5 py-6 sm:px-6">
+      {/* Body — layoutScroll lets Motion measure positions correctly under scroll */}
+      <motion.div layoutScroll className="min-h-0 min-w-0 flex-1 space-y-7 overflow-y-auto px-5 py-6 sm:px-6">
         {noData ? (
           <EmptyState variant="no-data" />
         ) : filteredEmpty ? (
           <EmptyState variant="filtered" onClearFilters={() => onSetFilter({ bucket: null, category: null })} />
         ) : (
-          groups.map((g) => <GroupSection key={g.bucket} group={g} handlers={handlers} />)
+          <AnimatePresence initial={false}>
+            {groups.map((g) => (
+              <GroupSection key={g.bucket} group={g} handlers={handlers} />
+            ))}
+          </AnimatePresence>
         )}
-      </div>
+      </motion.div>
     </section>
   );
 }

@@ -395,6 +395,7 @@ export function Checklist({
   sort,
   onSetSort,
   onSetFilter,
+  onNewRequest,
   noData,
   filteredEmpty,
   ...handlers
@@ -406,6 +407,7 @@ export function Checklist({
   sort: SortKey;
   onSetSort: (s: SortKey) => void;
   onSetFilter: (p: Partial<FilterSpec>) => void;
+  onNewRequest: () => void;
   noData: boolean;
   filteredEmpty: boolean;
 } & RowHandlers) {
@@ -430,7 +432,7 @@ export function Checklist({
       {/* Body — layoutScroll lets Motion measure positions correctly under scroll */}
       <motion.div layoutScroll className="min-h-0 min-w-0 flex-1 space-y-7 overflow-y-auto px-5 py-6 sm:px-6">
         {noData ? (
-          <EmptyState variant="no-data" />
+          <EmptyState variant="no-data" onNewRequest={onNewRequest} />
         ) : filteredEmpty ? (
           <EmptyState variant="filtered" onClearFilters={() => onSetFilter({ bucket: null, category: null })} />
         ) : (

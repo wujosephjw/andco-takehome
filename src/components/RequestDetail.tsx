@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Request } from "@/lib/types";
+import type { DraftRequestPayload, Request } from "@/lib/types";
 import { bucketForStatus } from "@/lib/bucket";
 import { progress, isBlockedOnUs } from "@/lib/derive";
 import { shortDate } from "@/lib/relativeTime";
@@ -15,6 +15,8 @@ import { Close } from "./icons";
 export interface DetailHandlers {
   onResolve: (id: string) => void;
   onMarkReceived: (id: string) => void;
+  onSaveDraft: (id: string | null, payload: DraftRequestPayload) => void;
+  onSubmitDraft: (id: string | null, payload: DraftRequestPayload) => void;
   onFollowUp: (id: string) => void;
   onAddNote: (id: string, text: string) => void;
 }

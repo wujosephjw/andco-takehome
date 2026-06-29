@@ -97,6 +97,15 @@ export interface Request {
   activity: ActivityEntry[]; // normalized to [] when absent, never undefined
 }
 
+export interface DraftRequestPayload {
+  category: Category;
+  documentType: string;
+  source: string;
+  assignee: string;
+  dueAtRaw: string | null;
+  pagesExpected: number | null;
+}
+
 export interface Case {
   id: string;
   matterName: string;

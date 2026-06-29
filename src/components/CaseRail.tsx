@@ -4,7 +4,8 @@ import type { FilterSpec, OverviewCounts } from "@/lib/selectors";
 import { BUCKET_LABEL } from "@/lib/bucket";
 import { categoryLabel } from "@/lib/tokens";
 import { StatusDot } from "./StatusDot";
-import { CategoryIcon, Search } from "./icons";
+import { Button } from "./Button";
+import { CategoryIcon, Plus, Search } from "./icons";
 
 const STATUS_BUCKETS: Bucket[] = ["needs_you", "in_flight", "done", "draft"];
 
@@ -44,6 +45,7 @@ export function CaseRail({
   query,
   onQuery,
   onSetFilter,
+  onNewRequest,
 }: {
   caseData: Case;
   counts: OverviewCounts;
@@ -52,6 +54,7 @@ export function CaseRail({
   query: string;
   onQuery: (q: string) => void;
   onSetFilter: (patch: Partial<FilterSpec>) => void;
+  onNewRequest: () => void;
 }) {
   return (
     <aside className="hidden min-h-0 flex-col border-r border-white/60 bg-white/18 backdrop-blur-3xl lg:flex">
@@ -124,8 +127,12 @@ export function CaseRail({
         )}
       </nav>
 
-      <div className="border-t border-white/60 bg-white/12 px-4 py-4 text-meta text-ink-faint backdrop-blur-2xl">
-        {caseData.assignedParalegal}
+      <div className="space-y-3 border-t border-white/60 bg-white/12 px-4 py-4 backdrop-blur-2xl">
+        <p className="text-meta text-ink-faint">{caseData.assignedParalegal}</p>
+        <Button variant="ghost" className="w-full" onClick={onNewRequest}>
+          <Plus className="size-4" />
+          New request
+        </Button>
       </div>
     </aside>
   );

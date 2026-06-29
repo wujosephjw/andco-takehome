@@ -67,13 +67,12 @@ recoloring the whole row.
 
 ## What I'd do next / what I cut
 
-- **Cut:** the real draft-submission / new-request flow, dark mode, and keyboard
-  nav beyond the drawer's focus trap. Drafts stay visible and noteable, but I
-  avoid pretending a draft can be followed up with a source before submission.
+- **Cut:** backend persistence, file uploads/templates, dark mode, and heavier
+  keyboard navigation; the draft composer stays intentionally local and compact.
 - **Next:** with a backend, the fixture import becomes a fetch and the modeled
   `loading` state becomes a real Suspense boundary; a server/presentational RSC
   split if the tree grows; an "assigned to me" lens (the data has two paralegals);
-  the full draft-creation flow.
+  richer request templates if the draft workflow grows.
 
 ## Where I used AI (and steered it)
 

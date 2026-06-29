@@ -11,7 +11,7 @@ import {
   selectFiltered,
   type FilterSpec,
 } from "@/lib/selectors";
-import type { Bucket, Category } from "@/lib/types";
+import type { Bucket, Category, DraftRequestPayload } from "@/lib/types";
 import { reducer, initialState, latestUndoLabel } from "@/state/reducer";
 import type { Action } from "@/state/actions";
 import { CaseRail } from "./CaseRail";
@@ -34,6 +34,13 @@ const GROUP_DEF: { bucket: Bucket; label: string; hint?: string }[] = [
 // that would read as toy-like in a dense list. reducedMotion="user" makes
 // Motion skip to the end for people who ask for less motion.
 const MOVE_SPRING = { type: "spring", visualDuration: 0.34, bounce: 0.12 } as const;
+
+function nextLocalRequestId(requests: { id: string }[]): string {
+  const used = new Set(requests.map((r) => r.id));
+  let n = 1;
+  while (used.has(`req_new_${String(n).padStart(3, "0")}`)) n += 1;
+  return `req_new_${String(n).padStart(3, "0")}`;
+}
 
 export function Tracker() {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -65,6 +72,10 @@ export function Tracker() {
   const setSort = (sort: typeof state.sort) => dispatch({ type: "SET_SORT", sort });
   const open = (id: string) => dispatch({ type: "OPEN_DRAWER", id });
   const close = () => dispatch({ type: "CLOSE_DRAWER" });
+  const openNewDraft = () => {
+    setQuery("");
+    dispatch({ type: "OPEN_NEW_DRAFT" });
+  };
 
   const showLoading = state.phase === "loading";
   const requests = state.requests;
@@ -115,9 +126,36 @@ export function Tracker() {
     mutate({ type: "MARK_RECEIVED", id }, "Moved to Collected");
   }
 
+  function revealBucket(bucket: Bucket) {
+    setQuery("");
+    dispatch({
+      type: "SET_FILTER",
+      filter: { bucket, category: null, includeCanceled: false },
+    });
+  }
+
+  function saveDraft(id: string | null, payload: DraftRequestPayload) {
+    const draftId = id ?? nextLocalRequestId(requests);
+    mutate(
+      id
+        ? { type: "UPDATE_DRAFT", id: draftId, payload }
+        : { type: "CREATE_DRAFT", id: draftId, payload },
+      "Draft saved",
+    );
+    revealBucket("draft");
+  }
+
+  function submitDraft(id: string | null, payload: DraftRequestPayload) {
+    const draftId = id ?? nextLocalRequestId(requests);
+    mutate({ type: "SUBMIT_DRAFT", id: draftId, payload }, "Submitted request - In progress");
+    revealBucket("in_flight");
+  }
+
   const detailHandlers = {
     onResolve: resolveRequest,
     onMarkReceived: markReceived,
+    onSaveDraft: saveDraft,
+    onSubmitDraft: submitDraft,
     onFollowUp: (id: string) => mutate({ type: "FOLLOW_UP", id }, "Follow-up logged"),
     onAddNote: (id: string, text: string) => mutate({ type: "ADD_NOTE", id, text }, "Note added"),
   };
@@ -150,6 +188,7 @@ export function Tracker() {
             query={query}
             onQuery={setQuery}
             onSetFilter={setFilter}
+            onNewRequest={openNewDraft}
           />
 
           {showLoading ? (
@@ -163,6 +202,7 @@ export function Tracker() {
               sort={state.sort}
               onSetSort={setSort}
               onSetFilter={setFilter}
+              onNewRequest={openNewDraft}
               noData={noData}
               filteredEmpty={filteredEmpty}
               selectedId={highlightId}
@@ -172,12 +212,24 @@ export function Tracker() {
             />
           )}
 
-          <DetailPane request={showLoading ? null : selected} onClose={close} {...detailHandlers} />
+          <DetailPane
+            caseData={caseData}
+            request={showLoading ? null : selected}
+            composingDraft={!showLoading && state.composingDraft}
+            onClose={close}
+            {...detailHandlers}
+          />
         </div>
       </main>
 
       {/* Mobile/tablet detail overlay — driven by the real selection only */}
-      <DetailDrawer request={selected} onClose={close} {...detailHandlers} />
+      <DetailDrawer
+        caseData={caseData}
+        request={selected}
+        composingDraft={!showLoading && state.composingDraft}
+        onClose={close}
+        {...detailHandlers}
+      />
 
       <UndoToast toast={toast} onUndo={undo} onDismiss={() => setToast(null)} />
     </MotionConfig>

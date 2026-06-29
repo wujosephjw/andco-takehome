@@ -68,13 +68,13 @@ export function CaseRail({
 
       <div className="px-4 pb-4">
         <div className="relative">
-          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink-faint" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink-muted" />
           <input
             value={query}
             onChange={(e) => onQuery(e.target.value)}
-            aria-label="Search document requests"
+            aria-label="Search requests"
             placeholder="Search requests"
-            className="liquid-control h-10 w-full rounded-full border border-white/70 bg-glass-strong pl-9 pr-3 text-body text-ink shadow-rest placeholder:text-ink-faint"
+            className="liquid-control glass-focus h-10 w-full rounded-full border border-white/85 bg-white/68 pl-9 pr-3 text-body font-medium text-ink shadow-rest placeholder:font-normal placeholder:text-ink-muted hover:bg-white/78 focus-visible:bg-white/82"
           />
         </div>
       </div>

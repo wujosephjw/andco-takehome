@@ -1,10 +1,14 @@
+"use client";
+
 import { useEffect, useRef, useState } from "react";
-import type { Request, Bucket, Case, Category, Status } from "@/lib/types";
+import { AnimatePresence, motion } from "motion/react";
+import type { Request, Bucket, Case, Status } from "@/lib/types";
 import type { FilterSpec, SortKey, OverviewCounts } from "@/lib/selectors";
 import { BUCKET_LABEL } from "@/lib/bucket";
 import { resolveLabelFor } from "@/lib/nextAction";
-import { categoryLabel, rawStatusLabel } from "@/lib/tokens";
+import { rawStatusLabel } from "@/lib/tokens";
 import { StatusDot } from "./StatusDot";
+import { CategoryPill } from "./CategoryPill";
 import { DueLabel } from "./DueLabel";
 import { Button } from "./Button";
 import { EmptyState } from "./EmptyState";
@@ -25,6 +29,14 @@ type RowHandlers = {
   onFollowUp: (id: string) => void;
 };
 
+// Enter/exit is opacity + a whisper of scale only — never size/height. Survivors
+// reflow purely on the compositor via Motion's `layout="position"`, so the blurred
+// glass is never re-rasterized and the whole move reads as one spring. popLayout
+// pulls a leaving item out of flow instantly, so the gap closes while it fades —
+// no two-beat.
+const ENTER = { opacity: 0, scale: 0.96 };
+const SHOWN = { opacity: 1, scale: 1 };
+
 /** Lead identity. Many docs share a prefix ("Medical Records — …"); the part
  *  after the separator is what tells them apart, so the prefix recedes to faint
  *  and the tail keeps full ink — the eye lands on what's actually different. */
@@ -37,17 +49,6 @@ function DocTitle({ r, className }: { r: Request; className?: string }) {
     <span className={`truncate font-medium text-ink ${className ?? ""}`}>
       {prefix && <span className="text-ink-faint">{prefix}</span>}
       {tail}
-    </span>
-  );
-}
-
-/** Category as a quiet tag in the right meta cluster, paired with the date. It's
- *  a slicing dimension, so it rides next to urgency instead of competing with the
- *  document title on the left. */
-function CategoryTag({ category }: { category: Category }) {
-  return (
-    <span className="inline-flex shrink-0 items-center rounded-full border border-white/45 bg-white/35 px-2 py-0.5 text-meta text-ink-muted">
-      {categoryLabel[category]}
     </span>
   );
 }
@@ -90,8 +91,12 @@ function ActionCard({ r, selectedId, onOpen, onResolve }: { r: Request } & RowHa
   const selected = r.id === selectedId;
   const dimmed = selectedId !== null && !selected;
   return (
-    <article
-      className={`liquid-surface relative flex min-w-0 flex-col rounded-[22px] border p-4 shadow-card ${
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={() => onOpen(r.id)}
+      onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), onOpen(r.id))}
+      className={`liquid-surface flex h-full min-w-0 cursor-pointer flex-col rounded-[22px] border p-4 shadow-card ${
         selected
           ? "border-white/90 bg-white/90"
           : dimmed
@@ -99,13 +104,7 @@ function ActionCard({ r, selectedId, onOpen, onResolve }: { r: Request } & RowHa
             : "border-white/70 bg-white/64 hover:border-white/90 hover:bg-white/74"
       }`}
     >
-      <button
-        type="button"
-        onClick={() => onOpen(r.id)}
-        aria-label={`Open details for ${r.documentType}`}
-        className="absolute inset-0 z-10 rounded-[inherit] text-left focus-visible:outline-none"
-      />
-      <div className="pointer-events-none relative z-20 flex items-start justify-between gap-3">
+      <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <DocTitle r={r} className="block text-row" />
           <SupportLine r={r} />
@@ -113,21 +112,21 @@ function ActionCard({ r, selectedId, onOpen, onResolve }: { r: Request } & RowHa
       </div>
 
       {r.attentionReason && (
-        <p className="pointer-events-none relative z-20 mt-3 rounded-2xl border border-white/45 bg-white/30 px-3 py-2 text-body text-ink-muted">
+        <p className="mt-3 rounded-2xl border border-white/45 bg-white/30 px-3 py-2 text-body text-ink-muted">
           {r.attentionReason}
         </p>
       )}
 
-      <div className="relative z-20 mt-auto flex flex-wrap items-center justify-between gap-3 pt-3.5">
-        <span className="pointer-events-none flex items-center gap-2.5">
-          <CategoryTag category={r.category} />
+      <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-3.5">
+        <span className="flex items-center gap-2.5">
+          <CategoryPill category={r.category} />
           <DueLabel request={r} />
         </span>
-        <span className="relative z-30 flex max-w-full flex-wrap items-center justify-end gap-2">
-          <Button variant="secondary" onClick={() => onResolve(r.id)}>{resolveLabelFor(r)}</Button>
+        <span className="flex max-w-full flex-wrap items-center justify-end gap-2">
+          <Button variant="secondary" onClick={(e) => (e.stopPropagation(), onResolve(r.id))}>{resolveLabelFor(r)}</Button>
         </span>
       </div>
-    </article>
+    </div>
   );
 }
 
@@ -152,7 +151,7 @@ function RequestRow({ r, selectedId, onOpen }: { r: Request } & Pick<RowHandlers
         <SupportLine r={r} />
       </span>
       <span className="flex shrink-0 items-center gap-2.5">
-        <CategoryTag category={r.category} />
+        <CategoryPill category={r.category} />
         <span className="w-[112px] text-right">
           <DueLabel request={r} />
         </span>
@@ -162,7 +161,11 @@ function RequestRow({ r, selectedId, onOpen }: { r: Request } & Pick<RowHandlers
 }
 
 /* ── Collected chip (done) ────────────────────────────────────────── */
-function CollectedChip({ r, selectedId, onOpen }: { r: Request } & Pick<RowHandlers, "selectedId" | "onOpen">) {
+function CollectedChip({
+  r,
+  selectedId,
+  onOpen,
+}: { r: Request } & Pick<RowHandlers, "selectedId" | "onOpen">) {
   const selected = r.id === selectedId;
   const dimmed = selectedId !== null && !selected;
   return (
@@ -185,8 +188,17 @@ function CollectedChip({ r, selectedId, onOpen }: { r: Request } & Pick<RowHandl
 /* ── A group section ──────────────────────────────────────────────── */
 function GroupSection({ group, handlers }: { group: Group; handlers: RowHandlers }) {
   const { bucket, label, hint, items } = group;
+
+  // The list shell differs per bucket; the per-item Motion wrapper is shared.
+  const containerClass =
+    bucket === "needs_you"
+      ? "relative grid min-w-0 gap-3 sm:grid-cols-2"
+      : bucket === "done"
+        ? "relative flex flex-wrap gap-2.5"
+        : "liquid-surface relative divide-y divide-hairline overflow-hidden rounded-[22px] border border-white/42 bg-white/30 shadow-rest";
+
   return (
-    <section className="min-w-0">
+    <motion.section layout="position" className="min-w-0">
       <header className="mb-3 flex items-center gap-2.5 px-1">
         <StatusDot bucket={bucket} />
         <h2 className="text-body font-medium text-ink">{label}</h2>
@@ -197,26 +209,53 @@ function GroupSection({ group, handlers }: { group: Group; handlers: RowHandlers
         {hint && <span className="text-meta text-ink-faint">{hint}</span>}
       </header>
 
-      {bucket === "needs_you" ? (
-        <div className="grid min-w-0 gap-3 sm:grid-cols-2">
+      <div className={containerClass}>
+        <AnimatePresence mode="popLayout" initial={false}>
           {items.map((r) => (
-            <ActionCard key={r.id} r={r} {...handlers} />
+            <motion.div
+              key={r.id}
+              layout="position"
+              initial={ENTER}
+              animate={SHOWN}
+              exit={ENTER}
+              className={bucket === "needs_you" ? "min-w-0" : bucket === "done" ? "inline-flex" : ""}
+            >
+              {bucket === "needs_you" ? (
+                <ActionCard r={r} {...handlers} />
+              ) : bucket === "done" ? (
+                <CollectedChip r={r} selectedId={handlers.selectedId} onOpen={handlers.onOpen} />
+              ) : (
+                <RequestRow r={r} selectedId={handlers.selectedId} onOpen={handlers.onOpen} />
+              )}
+            </motion.div>
           ))}
+        </AnimatePresence>
+      </div>
+    </motion.section>
+  );
+}
+
+/* ── Overview strip (scan the full picture at a glance) ───────────── */
+function OverviewStrip({ counts }: { counts: OverviewCounts }) {
+  const items = [
+    { label: "Requests", value: counts.total, className: "text-ink" },
+    { label: "Needs you", value: counts.needsYou, className: counts.needsYou ? "text-ink" : "text-ink-muted" },
+    { label: "Overdue", value: counts.overdue, className: counts.overdue ? "text-overdue" : "text-ink-muted" },
+    { label: "Collected", value: counts.done, className: "text-ink-muted" },
+  ];
+
+  return (
+    <div aria-label="Case request overview" className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+      {items.map((item) => (
+        <div
+          key={item.label}
+          className="liquid-control rounded-2xl border border-white/65 bg-glass-strong px-3 py-2 shadow-rest"
+        >
+          <div className={`text-count font-medium tabular-nums ${item.className}`}>{item.value}</div>
+          <div className="text-label font-medium text-ink-faint">{item.label}</div>
         </div>
-      ) : bucket === "done" ? (
-        <div className="flex flex-wrap gap-2.5">
-          {items.map((r) => (
-            <CollectedChip key={r.id} r={r} selectedId={handlers.selectedId} onOpen={handlers.onOpen} />
-          ))}
-        </div>
-      ) : (
-        <div className="liquid-surface divide-y divide-hairline overflow-hidden rounded-[22px] border border-white/42 bg-white/30 shadow-rest">
-          {items.map((r) => (
-            <RequestRow key={r.id} r={r} selectedId={handlers.selectedId} onOpen={handlers.onOpen} />
-          ))}
-        </div>
-      )}
-    </section>
+      ))}
+    </div>
   );
 }
 
@@ -256,34 +295,6 @@ function MobilePills({
           </button>
         );
       })}
-    </div>
-  );
-}
-
-function OverviewStrip({ counts }: { counts: OverviewCounts }) {
-  const items = [
-    { label: "Requests", value: counts.total, className: "text-ink" },
-    { label: "Needs you", value: counts.needsYou, className: counts.needsYou ? "text-ink" : "text-ink-muted" },
-    { label: "Overdue", value: counts.overdue, className: counts.overdue ? "text-overdue" : "text-ink-muted" },
-    { label: "Collected", value: counts.done, className: "text-ink-muted" },
-  ];
-
-  return (
-    <div
-      aria-label="Case request overview"
-      className="grid grid-cols-2 gap-2 sm:grid-cols-4"
-    >
-      {items.map((item) => (
-        <div
-          key={item.label}
-          className="liquid-control rounded-2xl border border-white/65 bg-glass-strong px-3 py-2 shadow-rest"
-        >
-          <div className={`text-count font-medium tabular-nums ${item.className}`}>
-            {item.value}
-          </div>
-          <div className="text-label font-medium text-ink-faint">{item.label}</div>
-        </div>
-      ))}
     </div>
   );
 }
@@ -330,16 +341,16 @@ function SortMenu({
 
   return (
     <div ref={menuRef} className="relative z-50 flex w-full items-center gap-2 text-meta text-ink-muted sm:w-auto sm:shrink-0">
-      <span className="text-ink-faint">Sort</span>
+      <span className="font-medium text-ink-muted">Sort</span>
       <button
         type="button"
         aria-haspopup="listbox"
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
-        className="liquid-control glass-focus inline-flex h-9 min-w-[132px] flex-1 items-center justify-between gap-3 rounded-full border border-white/75 bg-glass-strong px-3 text-left text-meta font-medium text-ink shadow-rest hover:bg-white/76 focus-visible:outline-none sm:flex-none"
+        className="liquid-control glass-focus inline-flex h-9 min-w-[142px] flex-1 items-center justify-between gap-3 rounded-full border border-white/85 bg-white/68 px-3.5 text-left text-meta font-semibold text-ink shadow-rest hover:bg-white/78 sm:flex-none"
       >
         <span>{selected.label}</span>
-        <ChevronDown className={`size-3.5 text-ink-faint transition-transform duration-300 ${open ? "rotate-180" : ""}`} />
+        <ChevronDown className={`size-3.5 text-ink-muted transition-transform duration-300 ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
         <div
@@ -416,16 +427,20 @@ export function Checklist({
         <MobilePills filter={filter} counts={counts} onSetFilter={onSetFilter} />
       </div>
 
-      {/* Body */}
-      <div className="min-h-0 min-w-0 flex-1 space-y-7 overflow-y-auto px-5 py-6 sm:px-6">
+      {/* Body — layoutScroll lets Motion measure positions correctly under scroll */}
+      <motion.div layoutScroll className="min-h-0 min-w-0 flex-1 space-y-7 overflow-y-auto px-5 py-6 sm:px-6">
         {noData ? (
           <EmptyState variant="no-data" />
         ) : filteredEmpty ? (
           <EmptyState variant="filtered" onClearFilters={() => onSetFilter({ bucket: null, category: null })} />
         ) : (
-          groups.map((g) => <GroupSection key={g.bucket} group={g} handlers={handlers} />)
+          <AnimatePresence initial={false}>
+            {groups.map((g) => (
+              <GroupSection key={g.bucket} group={g} handlers={handlers} />
+            ))}
+          </AnimatePresence>
         )}
-      </div>
+      </motion.div>
     </section>
   );
 }

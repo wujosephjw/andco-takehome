@@ -32,8 +32,6 @@ export const initialState: AppState = {
   history: [],
 };
 
-const HISTORY_CAP = 10;
-
 function snapshot(
   state: AppState,
   label: string,
@@ -46,7 +44,7 @@ function snapshot(
     if (r) before[id] = r; // requests are immutable-by-convention → safe to alias
     else if (includeMissing) before[id] = null;
   }
-  return [...state.history, { label, before }].slice(-HISTORY_CAP);
+  return [{ label, before }];
 }
 
 function patch(requests: Request[], id: string, fn: (r: Request) => Request): Request[] {

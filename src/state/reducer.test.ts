@@ -102,6 +102,21 @@ describe("reducer draft experience", () => {
     expect(restored.history).toHaveLength(0);
   });
 
+  it("replaces the previous undo snapshot when another undoable action happens", () => {
+    const request = makeRequest({ status: "in_progress", pagesExpected: 3 });
+    const state = readyState([request]);
+    const noted = reducer(state, { type: "ADD_NOTE", id: "req_001", text: "Called source" });
+
+    const received = reducer(noted, { type: "MARK_RECEIVED", id: "req_001" });
+    const undone = reducer(received, { type: "UNDO" });
+
+    expect(received.history).toHaveLength(1);
+    expect(received.history[0].label).toBe("Moved to Collected");
+    expect(undone.requests[0].status).toBe("in_progress");
+    expect(undone.requests[0].activity).toHaveLength(1);
+    expect(undone.history).toHaveLength(0);
+  });
+
   it("ignores delete for non-draft requests", () => {
     const state = readyState([makeRequest({ status: "in_progress" })]);
 

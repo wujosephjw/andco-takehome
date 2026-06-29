@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "motion/react";
 import type { Request, Bucket, Case, Status } from "@/lib/types";
 import type { FilterSpec, SortKey, OverviewCounts } from "@/lib/selectors";
 import { BUCKET_LABEL } from "@/lib/bucket";
+import { bucketFilter } from "@/lib/filter";
 import { resolveLabelFor } from "@/lib/nextAction";
 import { rawStatusLabel } from "@/lib/tokens";
 import { StatusDot } from "./StatusDot";
@@ -262,12 +263,7 @@ function MobilePills({
           <button
             key={b ?? "all"}
             type="button"
-            onClick={() =>
-              onSetFilter({
-                bucket: b,
-                includeCanceled: b === "closed" ? true : false,
-              })
-            }
+            onClick={() => onSetFilter(bucketFilter(b))}
             className={`liquid-control inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-meta font-medium shadow-rest ${
               active ? "border-white/80 bg-white/70 text-ink" : "border-white/55 bg-glass-strong text-ink-muted hover:bg-white/62"
             }`}
@@ -416,7 +412,7 @@ export function Checklist({
         {noData ? (
           <EmptyState variant="no-data" onNewRequest={onNewRequest} />
         ) : filteredEmpty ? (
-          <EmptyState variant="filtered" onClearFilters={() => onSetFilter({ bucket: null, category: null })} />
+          <EmptyState variant="filtered" onClearFilters={() => onSetFilter({ ...bucketFilter(null), category: null })} />
         ) : (
           <AnimatePresence initial={false}>
             {groups.map((g) => (

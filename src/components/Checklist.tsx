@@ -130,7 +130,7 @@ function ActionCard({ r, selectedId, onOpen, onResolve }: { r: Request } & RowHa
           <DueLabel request={r} />
         </span>
         <span className="flex max-w-full flex-wrap items-center justify-end gap-2">
-          <Button variant="secondary" onClick={(e) => (e.stopPropagation(), onResolve(r.id))}>{resolveLabelFor(r)}</Button>
+          <Button variant="secondary" onClick={(e) => (e.stopPropagation(), onOpen(r.id), onResolve(r.id))}>{resolveLabelFor(r)}</Button>
         </span>
       </div>
     </div>

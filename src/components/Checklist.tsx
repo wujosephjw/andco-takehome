@@ -370,32 +370,6 @@ function SortMenu({
   );
 }
 
-function OverviewStrip({ counts }: { counts: OverviewCounts }) {
-  const stats = [
-    { label: "Open", value: counts.open },
-    { label: "Action needed", value: counts.needsYou },
-    { label: "Overdue", value: counts.overdue, overdue: true },
-    { label: "Collected", value: counts.done },
-    { label: "Drafts", value: counts.byBucket.draft },
-  ];
-
-  return (
-    <div className="hidden min-w-0 grid-cols-2 gap-2 lg:grid xl:grid-cols-5">
-      {stats.map((stat) => (
-        <div
-          key={stat.label}
-          className="liquid-surface rounded-2xl border border-white/58 bg-white/38 px-4 py-3 shadow-rest"
-        >
-          <p className={`text-count font-medium tabular-nums ${stat.overdue ? "text-overdue" : "text-ink"}`}>
-            {stat.value}
-          </p>
-          <p className="truncate text-meta text-ink-faint">{stat.label}</p>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 export function Checklist({
   caseData,
   groups,
@@ -434,7 +408,6 @@ export function Checklist({
           </div>
           <SortMenu sort={sort} onSetSort={onSetSort} />
         </div>
-        <OverviewStrip counts={counts} />
         <MobilePills filter={filter} counts={counts} onSetFilter={onSetFilter} />
       </div>
 

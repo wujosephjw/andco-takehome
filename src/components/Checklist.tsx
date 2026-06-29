@@ -12,7 +12,7 @@ import { CategoryPill } from "./CategoryPill";
 import { DueLabel } from "./DueLabel";
 import { Button } from "./Button";
 import { EmptyState } from "./EmptyState";
-import { Check, ChevronDown } from "./icons";
+import { Check, ChevronDown, Close } from "./icons";
 
 export interface Group {
   bucket: Bucket;
@@ -26,6 +26,7 @@ type RowHandlers = {
   onOpen: (id: string) => void;
   onResolve: (id: string) => void;
   onFollowUp: (id: string) => void;
+  onDeleteDraft: (id: string) => void;
 };
 
 // Enter/exit is opacity + a whisper of scale only — never size/height. Survivors
@@ -137,22 +138,23 @@ function ActionCard({ r, selectedId, onOpen, onResolve }: { r: Request } & RowHa
   );
 }
 
-/* ── In-progress / draft row ──────────────────────────────────────── */
-function RequestRow({ r, selectedId, onOpen }: { r: Request } & Pick<RowHandlers, "selectedId" | "onOpen">) {
+/* ── In-progress / draft / canceled row ───────────────────────────── */
+function RequestRow({
+  r,
+  selectedId,
+  onOpen,
+  onDelete,
+}: { r: Request; onDelete?: (id: string) => void } & Pick<RowHandlers, "selectedId" | "onOpen">) {
   const selected = r.id === selectedId;
   const dimmed = selectedId !== null && !selected;
-  return (
-    <button
-      type="button"
-      onClick={() => onOpen(r.id)}
-      className={`liquid-row flex min-h-16 w-full items-center gap-3 px-4 py-3 text-left ${
-        selected
-          ? "bg-white/74 shadow-rest"
-          : dimmed
-            ? "opacity-65 hover:text-ink hover:opacity-100"
-            : "hover:text-ink"
-      }`}
-    >
+  const stateClass = selected
+    ? "bg-white/74 shadow-rest"
+    : dimmed
+      ? "opacity-65 hover:text-ink hover:opacity-100"
+      : "hover:text-ink";
+
+  const body = (
+    <>
       <span className="min-w-0 flex-1">
         <DocTitle r={r} className="block text-row" />
         <SupportLine r={r} />
@@ -163,7 +165,44 @@ function RequestRow({ r, selectedId, onOpen }: { r: Request } & Pick<RowHandlers
           <DueLabel request={r} />
         </span>
       </span>
-    </button>
+    </>
+  );
+
+  // Plain navigable row (in-progress, canceled) — a single button.
+  if (!onDelete) {
+    return (
+      <button
+        type="button"
+        onClick={() => onOpen(r.id)}
+        className={`liquid-row flex min-h-16 w-full items-center gap-3 px-4 py-3 text-left ${stateClass}`}
+      >
+        {body}
+      </button>
+    );
+  }
+
+  // Draft row: opens on click, with a hover/focus-revealed delete. A <button>
+  // can't nest inside a <button>, so this mirrors ActionCard's role="button"
+  // div + stopPropagation pattern. pr-12 reserves the gutter so the × never
+  // overlaps the meta and revealing it causes no layout shift.
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={() => onOpen(r.id)}
+      onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), onOpen(r.id))}
+      className={`liquid-row group relative flex min-h-16 w-full cursor-pointer items-center gap-3 py-3 pl-4 pr-12 text-left ${stateClass}`}
+    >
+      {body}
+      <button
+        type="button"
+        aria-label="Delete draft"
+        onClick={(e) => (e.stopPropagation(), onDelete(r.id))}
+        className="liquid-control absolute right-2.5 top-1/2 -translate-y-1/2 rounded-full border border-transparent p-1 text-ink-faint opacity-0 transition hover:border-overdue/35 hover:bg-white/62 hover:text-overdue focus-visible:opacity-100 group-hover:opacity-100 group-focus-within:opacity-100"
+      >
+        <Close className="size-4" />
+      </button>
+    </div>
   );
 }
 
@@ -232,7 +271,12 @@ function GroupSection({ group, handlers }: { group: Group; handlers: RowHandlers
               ) : bucket === "done" ? (
                 <CollectedChip r={r} selectedId={handlers.selectedId} onOpen={handlers.onOpen} />
               ) : (
-                <RequestRow r={r} selectedId={handlers.selectedId} onOpen={handlers.onOpen} />
+                <RequestRow
+                  r={r}
+                  selectedId={handlers.selectedId}
+                  onOpen={handlers.onOpen}
+                  onDelete={bucket === "draft" ? handlers.onDeleteDraft : undefined}
+                />
               )}
             </motion.div>
           ))}

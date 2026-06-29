@@ -211,6 +211,7 @@ export function Tracker() {
               onOpen={open}
               onResolve={detailHandlers.onResolve}
               onFollowUp={detailHandlers.onFollowUp}
+              onDeleteDraft={detailHandlers.onDeleteDraft}
             />
           )}
 

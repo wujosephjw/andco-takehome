@@ -37,9 +37,9 @@ export const BUCKET_ORDER: Bucket[] = [
 ];
 
 export const BUCKET_LABEL: Record<Bucket, string> = {
-  needs_you: "Needs you",
-  in_flight: "In flight",
-  done: "Done",
+  needs_you: "Action needed",
+  in_flight: "In progress",
+  done: "Collected",
   draft: "Draft",
-  closed: "Closed",
+  closed: "Canceled",
 };

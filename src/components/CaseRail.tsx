@@ -127,8 +127,7 @@ export function CaseRail({
         )}
       </nav>
 
-      <div className="space-y-3 border-t border-white/60 bg-white/12 px-4 py-4 backdrop-blur-2xl">
-        <p className="text-meta text-ink-faint">{caseData.assignedParalegal}</p>
+      <div className="border-t border-white/60 bg-white/12 px-4 py-4 backdrop-blur-2xl">
         <Button variant="ghost" className="w-full" onClick={onNewRequest}>
           <Plus className="size-4" />
           New request

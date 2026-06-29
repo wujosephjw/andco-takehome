@@ -1,6 +1,6 @@
 import { TODAY } from "./clock";
 import { bucketForStatus, BUCKET_ORDER } from "./bucket";
-import { isBlockedOnUs, isOverdue, daysOverdue, isStale } from "./derive";
+import { isBlockedOnUs, isOverdue, daysOverdue, isStale, isOpen } from "./derive";
 import type { Request, Bucket, Category } from "./types";
 
 function urgencyRank(r: Request, now: Date): number {
@@ -15,6 +15,7 @@ function urgencyRank(r: Request, now: Date): number {
 
 export interface OverviewCounts {
   total: number; // excludes canceled (dead noise)
+  open: number; // live third-party requests; excludes drafts, collected, canceled
   byBucket: Record<Bucket, number>;
   needsYou: number;
   inFlight: number;
@@ -33,12 +34,14 @@ export function selectOverview(requests: Request[], now: Date = TODAY): Overview
     closed: 0,
   };
   let overdue = 0;
+  let open = 0;
   let pagesReceived = 0;
   let pagesExpected = 0;
 
   for (const r of requests) {
     byBucket[bucketForStatus(r.status)]++;
     if (r.status === "canceled") continue;
+    if (isOpen(r)) open++;
     if (isOverdue(r, now)) overdue++;
     pagesReceived += r.pagesReceived ?? 0;
     pagesExpected += r.pagesExpected ?? 0;
@@ -46,6 +49,7 @@ export function selectOverview(requests: Request[], now: Date = TODAY): Overview
 
   return {
     total: requests.filter((r) => r.status !== "canceled").length,
+    open,
     byBucket,
     needsYou: byBucket.needs_you,
     inFlight: byBucket.in_flight,

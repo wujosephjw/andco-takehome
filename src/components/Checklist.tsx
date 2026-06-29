@@ -235,30 +235,6 @@ function GroupSection({ group, handlers }: { group: Group; handlers: RowHandlers
   );
 }
 
-/* ── Overview strip (scan the full picture at a glance) ───────────── */
-function OverviewStrip({ counts }: { counts: OverviewCounts }) {
-  const items = [
-    { label: "Requests", value: counts.total, className: "text-ink" },
-    { label: "Needs you", value: counts.needsYou, className: counts.needsYou ? "text-ink" : "text-ink-muted" },
-    { label: "Overdue", value: counts.overdue, className: counts.overdue ? "text-overdue" : "text-ink-muted" },
-    { label: "Collected", value: counts.done, className: "text-ink-muted" },
-  ];
-
-  return (
-    <div aria-label="Case request overview" className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-      {items.map((item) => (
-        <div
-          key={item.label}
-          className="liquid-control rounded-2xl border border-white/65 bg-glass-strong px-3 py-2 shadow-rest"
-        >
-          <div className={`text-count font-medium tabular-nums ${item.className}`}>{item.value}</div>
-          <div className="text-label font-medium text-ink-faint">{item.label}</div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 /* ── Mobile filter pills (lg:hidden) ──────────────────────────────── */
 const MOBILE_BUCKETS: (Bucket | null)[] = [null, "needs_you", "in_flight", "done", "draft", "closed"];
 function MobilePills({
@@ -425,7 +401,6 @@ export function Checklist({
           </div>
           <SortMenu sort={sort} onSetSort={onSetSort} />
         </div>
-        <OverviewStrip counts={counts} />
         <MobilePills filter={filter} counts={counts} onSetFilter={onSetFilter} />
       </div>
 

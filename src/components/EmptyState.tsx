@@ -38,7 +38,6 @@ export function EmptyState({
         When you request records, they&rsquo;ll appear here, sorted by what needs
         you first.
       </p>
-      <Button className="mt-1">New request</Button>
     </div>
   );
 }

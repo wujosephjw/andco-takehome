@@ -1,17 +1,13 @@
 import type { Category } from "@/lib/types";
 import { categoryLabel } from "@/lib/tokens";
 
-/** Colored category tag — text on a low-chroma tint (Legora-style pill). */
-const PILL: Record<Category, string> = {
-  medical: "text-ink-muted bg-glass-strong border-white/70",
-  police: "text-ink-muted bg-glass-strong border-white/70",
-  insurance: "text-ink-muted bg-glass-strong border-white/70",
-};
-
+/** Quiet category tag that rides next to the date — same text size as the date
+ *  label and no heavy chrome, so it reads as supporting metadata rather than a
+ *  loud badge competing with the document title. */
 export function CategoryPill({ category, className }: { category: Category; className?: string }) {
   return (
     <span
-      className={`liquid-control inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium shadow-rest ${PILL[category]} ${className ?? ""}`}
+      className={`inline-flex shrink-0 items-center rounded-full border border-white/45 bg-white/35 px-2 py-0.5 text-meta text-ink-muted ${className ?? ""}`}
     >
       {categoryLabel[category]}
     </span>

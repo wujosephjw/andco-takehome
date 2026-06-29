@@ -12,7 +12,6 @@ import { CategoryPill } from "./CategoryPill";
 import { DueLabel } from "./DueLabel";
 import { Button } from "./Button";
 import { EmptyState } from "./EmptyState";
-import { ProgressMeter } from "./ProgressMeter";
 import { Check, ChevronDown } from "./icons";
 
 export interface Group {
@@ -67,21 +66,20 @@ const STATUS_ECHOES_SECTION = new Set<Status>([
 
 /** The quiet line under a title, state-first: the raw status leads in a legible
  *  weight so every item's state reads at a glance ("think in states"), then the
- *  source, then a page meter when partial. The status word is dropped only where
- *  it would just echo the section header. Category isn't here — it rides in the
- *  right meta cluster next to the date. */
+ *  source. The status word is dropped only where it would just echo the section
+ *  header. Category isn't here — it rides in the right meta cluster next to the
+ *  date. */
 function SupportLine({ r }: { r: Request }) {
   const showStatus = !STATUS_ECHOES_SECTION.has(r.status);
   return (
     <span className="mt-0.5 flex min-w-0 items-center gap-1.5 text-meta text-ink-faint">
       {showStatus && (
         <>
-          <span className="shrink-0 font-medium text-ink-muted">{rawStatusLabel[r.status]}</span>
+          <span className="shrink-0 font-medium italic text-ink-muted">{rawStatusLabel[r.status]}</span>
           <span className="shrink-0" aria-hidden="true">·</span>
         </>
       )}
       <span className="truncate text-ink-muted">{r.source}</span>
-      <ProgressMeter request={r} />
     </span>
   );
 }
@@ -346,10 +344,10 @@ function SortMenu({
                   onSetSort(s.key);
                   setOpen(false);
                 }}
-                className={`liquid-row flex h-9 w-full items-center justify-between rounded-xl px-3 text-left text-meta ${
+                className={`liquid-row flex h-9 w-full items-center justify-between rounded-xl px-3 text-left text-body ${
                   active
-                    ? "bg-white/70 font-medium text-ink shadow-rest focus-visible:outline-none"
-                    : "text-ink-muted hover:bg-white/60 hover:text-ink focus-visible:outline-none"
+                    ? "bg-white/64 font-medium text-ink shadow-rest ring-1 ring-white/60 focus-visible:outline-none"
+                    : "text-ink-muted hover:bg-white/55 hover:text-ink focus-visible:outline-none"
                 }`}
               >
                 {s.label}

@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Case, Category, DraftRequestPayload, Request } from "@/lib/types";
 import { categoryLabel } from "@/lib/tokens";
 import { StatusBadge } from "./StatusBadge";
 import { Button } from "./Button";
-import { Close } from "./icons";
+import { Check, ChevronDown, Close } from "./icons";
 
 const CATEGORIES: Category[] = ["medical", "insurance", "police"];
 
@@ -36,6 +36,101 @@ function Field({
       <span className="mb-2 block text-meta font-medium text-ink-muted">{label}</span>
       {children}
     </label>
+  );
+}
+
+function FieldBlock({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="block">
+      <span className="mb-2 block text-meta font-medium text-ink-muted">{label}</span>
+      {children}
+    </div>
+  );
+}
+
+function CategoryMenu({
+  value,
+  onChange,
+}: {
+  value: Category;
+  onChange: (category: Category) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+
+    function closeFromOutside(event: PointerEvent) {
+      if (!menuRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    }
+
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("pointerdown", closeFromOutside);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeFromOutside);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [open]);
+
+  return (
+    <div ref={menuRef} className="relative z-50">
+      <button
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => setOpen((current) => !current)}
+        className="liquid-control glass-focus inline-flex h-10 w-full items-center justify-between gap-3 rounded-full border border-white/70 bg-glass-strong px-4 text-left text-body text-ink shadow-rest hover:bg-white/62 focus-visible:outline-none"
+      >
+        <span>{categoryLabel[value]}</span>
+        <ChevronDown className={`size-3.5 text-ink-muted transition-transform duration-300 ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+        <div
+          role="listbox"
+          aria-label="Category"
+          className="liquid-popover absolute left-0 right-0 top-[calc(100%+0.5rem)] z-[100] overflow-hidden rounded-2xl border border-white/80 bg-white/95 p-1.5 shadow-lift"
+        >
+          {CATEGORIES.map((category) => {
+            const active = category === value;
+            return (
+              <button
+                key={category}
+                type="button"
+                role="option"
+                aria-selected={active}
+                onClick={() => {
+                  onChange(category);
+                  setOpen(false);
+                }}
+                className={`liquid-row flex h-9 w-full items-center justify-between rounded-xl px-3 text-left text-body ${
+                  active
+                    ? "bg-white/64 font-medium text-ink shadow-rest ring-1 ring-white/60 focus-visible:outline-none"
+                    : "text-ink-muted hover:bg-white/55 hover:text-ink focus-visible:outline-none"
+                }`}
+              >
+                {categoryLabel[category]}
+                {active && <Check className="size-3.5 text-ink-muted" />}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -96,21 +191,12 @@ export function DraftRequestForm({
       </div>
 
       <div className="flex-1 space-y-5 overflow-y-auto px-5 py-5">
-        <Field label="Category">
-          <select
+        <FieldBlock label="Category">
+          <CategoryMenu
             value={form.category}
-            onChange={(e) =>
-              setForm((value) => ({ ...value, category: e.target.value as Category }))
-            }
-            className={fieldClass("appearance-none")}
-          >
-            {CATEGORIES.map((category) => (
-              <option key={category} value={category}>
-                {categoryLabel[category]}
-              </option>
-            ))}
-          </select>
-        </Field>
+            onChange={(category) => setForm((value) => ({ ...value, category }))}
+          />
+        </FieldBlock>
 
         <Field label="Document type">
           <input

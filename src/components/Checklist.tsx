@@ -294,13 +294,15 @@ function MobilePills({
   return (
     <div className="flex min-w-0 gap-1.5 overflow-x-auto pb-0.5 lg:hidden">
       {MOBILE_BUCKETS.filter((b) => b !== "closed" || counts.byBucket.closed > 0).map((b) => {
-        const active = filter.bucket === b;
+        const active = b === null
+          ? filter.bucket === null && filter.category === null
+          : filter.bucket === b;
         const count = b ? counts.byBucket[b] : counts.total;
         return (
           <button
             key={b ?? "all"}
             type="button"
-            onClick={() => onSetFilter(bucketFilter(b))}
+            onClick={() => onSetFilter({ ...bucketFilter(b), category: null })}
             className={`liquid-control inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-meta font-medium shadow-rest ${
               active ? "border-white/80 bg-white/70 text-ink" : "border-white/55 bg-glass-strong text-ink-muted hover:bg-white/62"
             }`}

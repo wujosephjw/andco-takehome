@@ -82,12 +82,8 @@ function ActionCard({ r, selectedId, onOpen, onResolve }: { r: Request } & RowHa
   const selected = r.id === selectedId;
   const dimmed = selectedId !== null && !selected;
   return (
-    <div
-      role="button"
-      tabIndex={0}
-      onClick={() => onOpen(r.id)}
-      onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), onOpen(r.id))}
-      className={`liquid-surface flex h-full min-w-0 cursor-pointer flex-col rounded-[22px] border p-4 shadow-card ${
+    <article
+      className={`liquid-surface flex h-full min-w-0 flex-col rounded-[22px] border p-4 shadow-card ${
         selected
           ? "border-white/90 bg-white/90"
           : dimmed
@@ -95,18 +91,24 @@ function ActionCard({ r, selectedId, onOpen, onResolve }: { r: Request } & RowHa
             : "border-white/70 bg-white/64 hover:border-white/90 hover:bg-white/74"
       }`}
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0 flex-1">
-          <DocTitle r={r} className="block text-row" />
-          <SupportLine r={r} />
+      <button
+        type="button"
+        onClick={() => onOpen(r.id)}
+        className="min-w-0 cursor-pointer text-left focus-visible:outline-none"
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <DocTitle r={r} className="block text-row" />
+            <SupportLine r={r} />
+          </div>
         </div>
-      </div>
 
-      {r.attentionReason && (
-        <p className="mt-3 rounded-2xl border border-white/45 bg-white/30 px-3 py-2 text-body text-ink-muted">
-          {r.attentionReason}
-        </p>
-      )}
+        {r.attentionReason && (
+          <p className="mt-3 rounded-2xl border border-white/45 bg-white/30 px-3 py-2 text-body text-ink-muted">
+            {r.attentionReason}
+          </p>
+        )}
+      </button>
 
       <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-3.5">
         <span className="flex items-center gap-2.5">
@@ -114,10 +116,18 @@ function ActionCard({ r, selectedId, onOpen, onResolve }: { r: Request } & RowHa
           <DueLabel request={r} />
         </span>
         <span className="flex max-w-full flex-wrap items-center justify-end gap-2">
-          <Button variant="secondary" onClick={(e) => (e.stopPropagation(), onOpen(r.id), onResolve(r.id))}>{resolveLabelFor(r)}</Button>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              onOpen(r.id);
+              onResolve(r.id);
+            }}
+          >
+            {resolveLabelFor(r)}
+          </Button>
         </span>
       </div>
-    </div>
+    </article>
   );
 }
 
@@ -164,23 +174,24 @@ function RequestRow({
     );
   }
 
-  // Draft row: opens on click, with a hover/focus-revealed delete. A <button>
-  // can't nest inside a <button>, so this mirrors ActionCard's role="button"
-  // div + stopPropagation pattern. pr-12 reserves the gutter so the × never
-  // overlaps the meta and revealing it causes no layout shift.
+  // Draft row: the main body and delete action are sibling buttons. pr-12
+  // reserves the gutter so the × never overlaps the meta, and reveal causes no
+  // layout shift.
   return (
     <div
-      role="button"
-      tabIndex={0}
-      onClick={() => onOpen(r.id)}
-      onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), onOpen(r.id))}
-      className={`liquid-row group relative flex min-h-16 w-full cursor-pointer items-center gap-3 py-3 pl-4 pr-12 text-left ${stateClass}`}
+      className={`liquid-row group relative min-h-16 w-full text-left ${stateClass}`}
     >
-      {body}
+      <button
+        type="button"
+        onClick={() => onOpen(r.id)}
+        className="flex min-h-16 w-full cursor-pointer items-center gap-3 py-3 pl-4 pr-12 text-left focus-visible:outline-none"
+      >
+        {body}
+      </button>
       <button
         type="button"
         aria-label="Delete draft"
-        onClick={(e) => (e.stopPropagation(), onDelete(r.id))}
+        onClick={() => onDelete(r.id)}
         className="liquid-control absolute right-2.5 top-1/2 -translate-y-1/2 rounded-full border border-transparent p-1 text-ink-faint opacity-0 transition hover:border-overdue/35 hover:bg-white/62 hover:text-overdue focus-visible:opacity-100 group-hover:opacity-100 group-focus-within:opacity-100"
       >
         <Close className="size-4" />

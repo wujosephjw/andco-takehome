@@ -108,6 +108,7 @@ export function DetailDrawer({
   return (
     <div
       aria-hidden={!open}
+      inert={!open ? true : undefined}
       className={`fixed inset-0 z-40 lg:hidden ${open ? "" : "pointer-events-none"}`}
     >
       <div

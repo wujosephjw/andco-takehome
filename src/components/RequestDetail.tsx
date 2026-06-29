@@ -15,7 +15,8 @@ import { Close } from "./icons";
 export interface DetailHandlers {
   onResolve: (id: string) => void;
   onMarkReceived: (id: string) => void;
-  onSaveDraft: (id: string | null, payload: DraftRequestPayload) => void;
+  onAutosaveDraft: (id: string | null, payload: DraftRequestPayload) => string;
+  onDeleteDraft: (id: string) => void;
   onSubmitDraft: (id: string | null, payload: DraftRequestPayload) => void;
   onFollowUp: (id: string) => void;
   onAddNote: (id: string, text: string) => void;
@@ -28,6 +29,14 @@ function Fact({ label, children }: { label: string; children: React.ReactNode })
       <dd className="mt-1 text-body text-ink">{children}</dd>
     </div>
   );
+}
+
+function displayDocumentType(request: Request): string {
+  return request.documentType.trim() || "Untitled request";
+}
+
+function displaySource(request: Request): string {
+  return request.source.trim() || "No source yet";
 }
 
 function NoteComposer({ onAdd }: { onAdd: (text: string) => void }) {
@@ -111,8 +120,10 @@ export function RequestDetail({
             <StatusBadge status={request.status} />
             <CategoryTag category={request.category} showLabel />
           </div>
-          <h2 className="text-subhead font-medium leading-snug text-ink">{request.documentType}</h2>
-          <p className="mt-0.5 text-meta text-ink-muted">{request.source}</p>
+          <h2 className="text-subhead font-medium leading-snug text-ink">
+            {displayDocumentType(request)}
+          </h2>
+          <p className="mt-0.5 text-meta text-ink-muted">{displaySource(request)}</p>
         </div>
         {onClose && (
           <button

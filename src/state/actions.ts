@@ -6,8 +6,8 @@ export type Action =
   | { type: "LOADED"; case: Case; requests: Request[] }
   // data mutations (each pushes an undo snapshot)
   | { type: "RESOLVE_NEEDS_ACTION"; id: string }
-  | { type: "CREATE_DRAFT"; id: string; payload: DraftRequestPayload }
-  | { type: "UPDATE_DRAFT"; id: string; payload: DraftRequestPayload }
+  | { type: "AUTOSAVE_DRAFT"; id: string; payload: DraftRequestPayload }
+  | { type: "DELETE_DRAFT"; id: string }
   | { type: "SUBMIT_DRAFT"; id: string; payload: DraftRequestPayload }
   | { type: "MARK_RECEIVED"; id: string }
   | { type: "ADD_NOTE"; id: string; text: string }

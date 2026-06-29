@@ -1,6 +1,6 @@
 import type { ButtonHTMLAttributes } from "react";
 
-type Variant = "primary" | "secondary" | "ghost";
+type Variant = "primary" | "secondary" | "ghost" | "danger";
 
 const VARIANT: Record<Variant, string> = {
   primary: "border border-black/80 bg-brand text-brand-onfill shadow-rest hover:bg-brand-hover",
@@ -8,6 +8,8 @@ const VARIANT: Record<Variant, string> = {
     "border border-ink/15 bg-glass-strong text-ink shadow-rest hover:border-ink/30 hover:bg-white/70",
   ghost:
     "border border-white/60 bg-glass text-ink-muted shadow-rest hover:border-white/80 hover:bg-white/62 hover:text-ink",
+  danger:
+    "border border-overdue/20 bg-glass text-overdue shadow-rest hover:border-overdue/35 hover:bg-white/62",
 };
 
 export function Button({

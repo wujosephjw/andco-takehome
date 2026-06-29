@@ -37,14 +37,23 @@ type RowHandlers = {
 const ENTER = { opacity: 0, scale: 0.96 };
 const SHOWN = { opacity: 1, scale: 1 };
 
+function displayDocumentType(r: Request): string {
+  return r.documentType.trim() || "Untitled request";
+}
+
+function displaySource(r: Request): string {
+  return r.source.trim() || "No source yet";
+}
+
 /** Lead identity. Many docs share a prefix ("Medical Records — …"); the part
  *  after the separator is what tells them apart, so the prefix recedes to faint
  *  and the tail keeps full ink — the eye lands on what's actually different. */
 function DocTitle({ r, className }: { r: Request; className?: string }) {
   const sep = " — ";
-  const at = r.documentType.indexOf(sep);
-  const prefix = at === -1 ? "" : r.documentType.slice(0, at + sep.length);
-  const tail = at === -1 ? r.documentType : r.documentType.slice(at + sep.length);
+  const title = displayDocumentType(r);
+  const at = title.indexOf(sep);
+  const prefix = at === -1 ? "" : title.slice(0, at + sep.length);
+  const tail = at === -1 ? title : title.slice(at + sep.length);
   return (
     <span className={`truncate font-medium text-ink ${className ?? ""}`}>
       {prefix && <span className="text-ink-faint">{prefix}</span>}
@@ -80,7 +89,7 @@ function SupportLine({ r }: { r: Request }) {
           <span className="shrink-0" aria-hidden="true">·</span>
         </>
       )}
-      <span className="truncate text-ink-muted">{r.source}</span>
+      <span className="truncate text-ink-muted">{displaySource(r)}</span>
       <ProgressMeter request={r} />
     </span>
   );

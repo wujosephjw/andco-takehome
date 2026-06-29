@@ -30,7 +30,7 @@ export function StatusBadge({
   return (
     <span className={`liquid-control inline-flex items-center gap-1.5 rounded-full border text-badge font-medium shadow-rest ${pad} ${bucketBadgeClasses[bucket]}`}>
       <StatusGlyph bucket={bucket} />
-      {rawStatusLabel[status]}
+      <span className="italic">{rawStatusLabel[status]}</span>
     </span>
   );
 }

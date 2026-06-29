@@ -2,15 +2,17 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import type { Request, Bucket, Case } from "@/lib/types";
+import type { Request, Bucket, Case, Status } from "@/lib/types";
 import type { FilterSpec, SortKey, OverviewCounts } from "@/lib/selectors";
 import { BUCKET_LABEL } from "@/lib/bucket";
 import { resolveLabelFor } from "@/lib/nextAction";
+import { rawStatusLabel } from "@/lib/tokens";
 import { StatusDot } from "./StatusDot";
 import { CategoryPill } from "./CategoryPill";
 import { DueLabel } from "./DueLabel";
 import { Button } from "./Button";
 import { EmptyState } from "./EmptyState";
+import { ProgressMeter } from "./ProgressMeter";
 import { Check, ChevronDown } from "./icons";
 
 export interface Group {
@@ -35,6 +37,55 @@ type RowHandlers = {
 const ENTER = { opacity: 0, scale: 0.96 };
 const SHOWN = { opacity: 1, scale: 1 };
 
+/** Lead identity. Many docs share a prefix ("Medical Records — …"); the part
+ *  after the separator is what tells them apart, so the prefix recedes to faint
+ *  and the tail keeps full ink — the eye lands on what's actually different. */
+function DocTitle({ r, className }: { r: Request; className?: string }) {
+  const sep = " — ";
+  const at = r.documentType.indexOf(sep);
+  const prefix = at === -1 ? "" : r.documentType.slice(0, at + sep.length);
+  const tail = at === -1 ? r.documentType : r.documentType.slice(at + sep.length);
+  return (
+    <span className={`truncate font-medium text-ink ${className ?? ""}`}>
+      {prefix && <span className="text-ink-faint">{prefix}</span>}
+      {tail}
+    </span>
+  );
+}
+
+/** Statuses whose word would just echo the section header, so the grouping
+ *  already says it: `in_progress` under "In progress", `received` under
+ *  "Collected", `draft`/`canceled` under their own sections. Every other status
+ *  (requested, partial, needs-action, rejected, on-hold) is a distinct sub-state
+ *  worth surfacing. Relies on items always being rendered grouped by bucket. */
+const STATUS_ECHOES_SECTION = new Set<Status>([
+  "in_progress",
+  "received",
+  "draft",
+  "canceled",
+]);
+
+/** The quiet line under a title, state-first: the raw status leads in a legible
+ *  weight so every item's state reads at a glance ("think in states"), then the
+ *  source, then a page meter when partial. The status word is dropped only where
+ *  it would just echo the section header. Category isn't here — it rides in the
+ *  right meta cluster next to the date. */
+function SupportLine({ r }: { r: Request }) {
+  const showStatus = !STATUS_ECHOES_SECTION.has(r.status);
+  return (
+    <span className="mt-0.5 flex min-w-0 items-center gap-1.5 text-meta text-ink-faint">
+      {showStatus && (
+        <>
+          <span className="shrink-0 font-medium text-ink-muted">{rawStatusLabel[r.status]}</span>
+          <span className="shrink-0" aria-hidden="true">·</span>
+        </>
+      )}
+      <span className="truncate text-ink-muted">{r.source}</span>
+      <ProgressMeter request={r} />
+    </span>
+  );
+}
+
 /* ── Action-needed card (needs_you) ───────────────────────────────── */
 function ActionCard({ r, selectedId, onOpen, onResolve }: { r: Request } & RowHandlers) {
   const selected = r.id === selectedId;
@@ -54,24 +105,21 @@ function ActionCard({ r, selectedId, onOpen, onResolve }: { r: Request } & RowHa
       }`}
     >
       <div className="flex items-start justify-between gap-3">
-        <div className="flex min-w-0 gap-2.5">
-          <StatusDot bucket="needs_you" className="mt-1" />
-          <div className="min-w-0">
-            <div className="truncate text-row font-medium text-ink">{r.documentType}</div>
-            <div className="truncate text-meta text-ink-muted">{r.source}</div>
-          </div>
+        <div className="min-w-0 flex-1">
+          <DocTitle r={r} className="block text-row" />
+          <SupportLine r={r} />
         </div>
-        <CategoryPill category={r.category} />
       </div>
 
       {r.attentionReason && (
-        <p className="ml-3 mt-3 rounded-2xl border border-white/45 bg-white/30 px-3 py-2 text-body text-ink-muted">
+        <p className="mt-3 rounded-2xl border border-white/45 bg-white/30 px-3 py-2 text-body text-ink-muted">
           {r.attentionReason}
         </p>
       )}
 
-      <div className="ml-3 mt-auto flex flex-wrap items-center justify-between gap-3 pt-3.5">
-        <span className="liquid-control inline-flex h-9 items-center rounded-full border border-white/60 bg-glass px-3 shadow-rest">
+      <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-3.5">
+        <span className="flex items-center gap-2.5">
+          <CategoryPill category={r.category} />
           <DueLabel request={r} />
         </span>
         <span className="flex max-w-full flex-wrap items-center justify-end gap-2">
@@ -83,12 +131,7 @@ function ActionCard({ r, selectedId, onOpen, onResolve }: { r: Request } & RowHa
 }
 
 /* ── In-progress / draft row ──────────────────────────────────────── */
-function RequestRow({
-  r,
-  bucket,
-  selectedId,
-  onOpen,
-}: { r: Request; bucket: Bucket } & Pick<RowHandlers, "selectedId" | "onOpen">) {
+function RequestRow({ r, selectedId, onOpen }: { r: Request } & Pick<RowHandlers, "selectedId" | "onOpen">) {
   const selected = r.id === selectedId;
   const dimmed = selectedId !== null && !selected;
   return (
@@ -103,14 +146,15 @@ function RequestRow({
             : "hover:text-ink"
       }`}
     >
-      <StatusDot bucket={bucket} />
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-row font-medium text-ink">{r.documentType}</span>
-        <span className="block truncate text-meta text-ink-muted">{r.source}</span>
+        <DocTitle r={r} className="block text-row" />
+        <SupportLine r={r} />
       </span>
-      <CategoryPill category={r.category} className="hidden sm:inline-flex" />
-      <span className="w-[112px] shrink-0 text-right">
-        <DueLabel request={r} />
+      <span className="flex shrink-0 items-center gap-2.5">
+        <CategoryPill category={r.category} />
+        <span className="w-[112px] text-right">
+          <DueLabel request={r} />
+        </span>
       </span>
     </button>
   );
@@ -136,11 +180,7 @@ function CollectedChip({
             : "border-white/55 bg-glass-strong hover:border-white/78 hover:bg-white/64"
       }`}
     >
-      <span className="grid size-5 place-items-center rounded-full border border-white/70 bg-white/70 text-ink-muted">
-        <Check className="size-3" />
-      </span>
-      <span className="text-meta font-medium text-ink">{r.documentType}</span>
-      <CategoryPill category={r.category} />
+      <DocTitle r={r} className="min-w-0 text-meta" />
     </button>
   );
 }
@@ -185,7 +225,7 @@ function GroupSection({ group, handlers }: { group: Group; handlers: RowHandlers
               ) : bucket === "done" ? (
                 <CollectedChip r={r} selectedId={handlers.selectedId} onOpen={handlers.onOpen} />
               ) : (
-                <RequestRow r={r} bucket={bucket} selectedId={handlers.selectedId} onOpen={handlers.onOpen} />
+                <RequestRow r={r} selectedId={handlers.selectedId} onOpen={handlers.onOpen} />
               )}
             </motion.div>
           ))}
@@ -195,8 +235,32 @@ function GroupSection({ group, handlers }: { group: Group; handlers: RowHandlers
   );
 }
 
+/* ── Overview strip (scan the full picture at a glance) ───────────── */
+function OverviewStrip({ counts }: { counts: OverviewCounts }) {
+  const items = [
+    { label: "Requests", value: counts.total, className: "text-ink" },
+    { label: "Needs you", value: counts.needsYou, className: counts.needsYou ? "text-ink" : "text-ink-muted" },
+    { label: "Overdue", value: counts.overdue, className: counts.overdue ? "text-overdue" : "text-ink-muted" },
+    { label: "Collected", value: counts.done, className: "text-ink-muted" },
+  ];
+
+  return (
+    <div aria-label="Case request overview" className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+      {items.map((item) => (
+        <div
+          key={item.label}
+          className="liquid-control rounded-2xl border border-white/65 bg-glass-strong px-3 py-2 shadow-rest"
+        >
+          <div className={`text-count font-medium tabular-nums ${item.className}`}>{item.value}</div>
+          <div className="text-label font-medium text-ink-faint">{item.label}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /* ── Mobile filter pills (lg:hidden) ──────────────────────────────── */
-const MOBILE_BUCKETS: (Bucket | null)[] = [null, "needs_you", "in_flight", "done", "draft"];
+const MOBILE_BUCKETS: (Bucket | null)[] = [null, "needs_you", "in_flight", "done", "draft", "closed"];
 function MobilePills({
   filter,
   counts,
@@ -208,14 +272,19 @@ function MobilePills({
 }) {
   return (
     <div className="flex min-w-0 gap-1.5 overflow-x-auto pb-0.5 lg:hidden">
-      {MOBILE_BUCKETS.map((b) => {
+      {MOBILE_BUCKETS.filter((b) => b !== "closed" || counts.byBucket.closed > 0).map((b) => {
         const active = filter.bucket === b;
         const count = b ? counts.byBucket[b] : counts.total;
         return (
           <button
             key={b ?? "all"}
             type="button"
-            onClick={() => onSetFilter({ bucket: b })}
+            onClick={() =>
+              onSetFilter({
+                bucket: b,
+                includeCanceled: b === "closed" ? true : false,
+              })
+            }
             className={`liquid-control inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-meta font-medium shadow-rest ${
               active ? "border-white/80 bg-white/70 text-ink" : "border-white/55 bg-glass-strong text-ink-muted hover:bg-white/62"
             }`}
@@ -356,6 +425,7 @@ export function Checklist({
           </div>
           <SortMenu sort={sort} onSetSort={onSetSort} />
         </div>
+        <OverviewStrip counts={counts} />
         <MobilePills filter={filter} counts={counts} onSetFilter={onSetFilter} />
       </div>
 

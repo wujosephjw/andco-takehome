@@ -37,8 +37,8 @@ status (which survives only as a label).
 
 `Overdue` is an orthogonal **flag**, not a bucket: six items are overdue, but four
 of them aren't "blocked on us" — so a flat overdue sort would bury the wrong
-things. It surfaces on the due cell only (never recoloring the row) plus a count
-in the overview strip.
+things. It surfaces in the overview strip and on the due cell only, never by
+recoloring the whole row.
 
 ## Decisions I was most deliberate about
 
@@ -59,10 +59,11 @@ in the overview strip.
    leaf into server/"connected" wrappers. Undo captures the prior value of just
    the touched request before each mutation — simpler and more honest than
    inverse-ops. *Tradeoff:* less server-rendered surface than an RSC-purist build.
-4. **On-brand, restrained visuals.** Warm paper (not white), Lora serif for
-   editorial moments + Geist for all data, one sage accent, and exactly one "loud"
-   family (the clay of the needs-you cards). The hard part of a dense list is
-   keeping it calm: hairline rows, no zebra, status by glyph **and** color.
+4. **On-brand, restrained visuals.** Warm paper (not white), Geist for the whole
+   data surface, one warm accent for needs-you/overdue moments, and otherwise
+   low-chroma glass and hairlines. The hard part of a dense list is keeping it
+   calm: raw status labels are visible, and status still works by glyph **and**
+   color.
 
 ## What I'd do next / what I cut
 
@@ -85,8 +86,8 @@ Where I steered it: overrode the agents' instinct to give `on_hold` its own
 "parked" bucket (the brief's "unpaid fee" makes it needs-you); collapsed a
 proposed server/client connected-wrapper architecture into one client island;
 corrected the overview's overdue semantics after seeing the first render (total
-overdue is its own chip, not a suffix on "In flight"); and replaced `next/image`
-with inline SVG to sidestep the GitHub Pages `basePath` trap.
+overdue is its own chip, not a suffix on "In flight"); and kept `next/image`
+configured as unoptimized so static export remains host-agnostic.
 
 Rough token total: **~2–3M**, the bulk in the parallel design-research agents.
 

@@ -152,9 +152,12 @@ export function DraftRequestForm({
   const pagesNumber = form.pagesExpected.trim() ? Number(form.pagesExpected) : null;
   const pagesValid =
     pagesNumber === null || (Number.isInteger(pagesNumber) && pagesNumber > 0);
+  const hasDocumentType = form.documentType.trim().length > 0;
+  const hasSource = form.source.trim().length > 0;
+  const canSaveDraft = hasDocumentType && pagesValid;
   const canSubmit =
-    form.documentType.trim().length > 0 &&
-    form.source.trim().length > 0 &&
+    hasDocumentType &&
+    hasSource &&
     pagesValid;
 
   const payload = (): DraftRequestPayload => ({
@@ -177,7 +180,7 @@ export function DraftRequestForm({
           </div>
           <h2 className="text-subhead font-medium leading-snug text-ink">{title}</h2>
           <p className="mt-0.5 text-meta text-ink-muted">
-            Save it as a draft or submit it to move it into progress.
+            Save a draft, or submit when ready to start the request.
           </p>
         </div>
         <button
@@ -266,7 +269,7 @@ export function DraftRequestForm({
         <Button
           variant="secondary"
           className="ml-auto"
-          disabled={!canSubmit}
+          disabled={!canSaveDraft}
           onClick={() => onSaveDraft(request?.id ?? null, payload())}
         >
           Save draft

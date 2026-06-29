@@ -2,12 +2,13 @@ import Image from "next/image";
 import type { Case, Bucket, Category } from "@/lib/types";
 import type { FilterSpec, OverviewCounts } from "@/lib/selectors";
 import { BUCKET_LABEL } from "@/lib/bucket";
+import { bucketFilter } from "@/lib/filter";
 import { categoryLabel } from "@/lib/tokens";
 import { StatusDot } from "./StatusDot";
 import { Button } from "./Button";
 import { CategoryIcon, Plus, Search } from "./icons";
 
-const STATUS_BUCKETS: Bucket[] = ["needs_you", "in_flight", "done", "draft"];
+const STATUS_BUCKETS: Bucket[] = ["needs_you", "in_flight", "done", "draft", "closed"];
 
 function NavItem({
   active,
@@ -84,20 +85,24 @@ export function CaseRail({
 
       <nav className="min-h-0 flex-1 overflow-y-auto px-3">
         <div className="px-3 pb-2 text-meta font-medium text-ink-faint">Status</div>
-        <NavItem active={filter.bucket === null} onClick={() => onSetFilter({ bucket: null })} count={counts.total}>
+        <NavItem active={filter.bucket === null} onClick={() => onSetFilter(bucketFilter(null))} count={counts.total}>
           All requests
         </NavItem>
-        {STATUS_BUCKETS.map((b) => (
-          <NavItem
-            key={b}
-            active={filter.bucket === b}
-            onClick={() => onSetFilter({ bucket: filter.bucket === b ? null : b })}
-            count={counts.byBucket[b]}
-          >
-            <StatusDot bucket={b} />
-            {BUCKET_LABEL[b]}
-          </NavItem>
-        ))}
+        {STATUS_BUCKETS.filter((b) => b !== "closed" || counts.byBucket.closed > 0).map((b) => {
+          const active = filter.bucket === b;
+          const nextBucket = active ? null : b;
+          return (
+            <NavItem
+              key={b}
+              active={active}
+              onClick={() => onSetFilter(bucketFilter(nextBucket))}
+              count={counts.byBucket[b]}
+            >
+              <StatusDot bucket={b} />
+              {BUCKET_LABEL[b]}
+            </NavItem>
+          );
+        })}
 
         <div className="mt-5 px-3 pb-2 text-meta font-medium text-ink-faint">
           Category
@@ -113,18 +118,6 @@ export function CaseRail({
             {categoryLabel[c]}
           </NavItem>
         ))}
-
-        {counts.byBucket.closed > 0 && (
-          <label className="liquid-row mt-4 flex cursor-pointer select-none items-center gap-2 rounded-xl px-3 py-2 text-meta text-ink-muted hover:bg-white/55 hover:text-ink">
-            <input
-              type="checkbox"
-              checked={filter.includeCanceled}
-              onChange={(e) => onSetFilter({ includeCanceled: e.target.checked })}
-              className="size-3.5 accent-brand"
-            />
-            Show canceled ({counts.byBucket.closed})
-          </label>
-        )}
       </nav>
 
       <div className="border-t border-white/60 bg-white/12 px-4 py-4 backdrop-blur-2xl">

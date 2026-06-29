@@ -33,7 +33,7 @@ status (which survives only as a label).
 | **In flight** | `requested`, `in_progress`, `partially_received` | waiting on the third party |
 | **Done** | `received` | complete |
 | **Draft** | `draft` | not yet submitted |
-| **Closed** | `canceled` | dead; hidden behind a toggle |
+| **Closed** | `canceled` | dead; hidden behind an explicit status filter |
 
 `Overdue` is an orthogonal **flag**, not a bucket: six items are overdue, but four
 of them aren't "blocked on us" — so a flat overdue sort would bury the wrong

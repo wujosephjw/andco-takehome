@@ -11,3 +11,25 @@ export const MS_PER_DAY = 86_400_000;
 export function iso(date: Date): string {
   return date.toISOString().slice(0, 10);
 }
+
+/**
+ * New local actions still live on the fixture's "today", but keep the user's
+ * current time-of-day so multiple same-day activity entries remain distinct.
+ */
+export function activityNow(now: Date = new Date()): Date {
+  return new Date(
+    Date.UTC(
+      TODAY.getUTCFullYear(),
+      TODAY.getUTCMonth(),
+      TODAY.getUTCDate(),
+      now.getHours(),
+      now.getMinutes(),
+      now.getSeconds(),
+      now.getMilliseconds(),
+    ),
+  );
+}
+
+export function isoDateTime(date: Date): string {
+  return date.toISOString();
+}

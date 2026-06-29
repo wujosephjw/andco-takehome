@@ -1,6 +1,6 @@
 import type { ActivityEntry, Channel } from "@/lib/types";
 import { channelLabel } from "@/lib/tokens";
-import { relativeTime, shortDate } from "@/lib/relativeTime";
+import { activityTime, shortDate } from "@/lib/relativeTime";
 
 function ChannelTag({ channel }: { channel: Channel }) {
   return (
@@ -26,14 +26,16 @@ export function ActivityTimeline({
     );
   }
 
-  const sorted = [...entries].sort((a, b) => b.at.getTime() - a.at.getTime());
+  const sorted = entries
+    .map((entry, index) => ({ entry, index }))
+    .sort((a, b) => b.entry.at.getTime() - a.entry.at.getTime() || b.index - a.index);
 
   return (
     <ol>
-      {sorted.map((e, i) => {
+      {sorted.map(({ entry: e, index }, i) => {
         const isLast = i === sorted.length - 1;
         return (
-          <li key={i} className="grid grid-cols-[14px_minmax(0,1fr)] gap-3">
+          <li key={`${e.atRaw}-${index}`} className="grid grid-cols-[14px_minmax(0,1fr)] gap-3">
             <div className="relative flex justify-center">
               {!isLast && (
                 <span className="absolute left-1/2 top-3 bottom-0 w-px -translate-x-1/2 bg-hairline" />
@@ -50,7 +52,7 @@ export function ActivityTimeline({
             <div className={isLast ? "" : "pb-4"}>
               <div className="flex flex-wrap items-center gap-2">
                 {e.channel && <ChannelTag channel={e.channel} />}
-                <span className="text-meta text-ink-faint">{relativeTime(e.at)}</span>
+                <span className="text-meta text-ink-faint">{activityTime(e.at, e.atRaw)}</span>
               </div>
               <p className="mt-0.5 text-body text-ink">{e.text}</p>
             </div>

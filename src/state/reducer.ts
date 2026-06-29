@@ -1,4 +1,4 @@
-import { TODAY, iso } from "@/lib/clock";
+import { activityNow, iso, isoDateTime, TODAY } from "@/lib/clock";
 import { resolvedActivityFor } from "@/lib/nextAction";
 import { DEFAULT_FILTER, type FilterSpec, type SortKey } from "@/lib/selectors";
 import type { Request, Case, ActivityEntry, DraftRequestPayload, Status } from "@/lib/types";
@@ -54,7 +54,8 @@ function patch(requests: Request[], id: string, fn: (r: Request) => Request): Re
 }
 
 function appendActivity(r: Request, text: string): ActivityEntry[] {
-  return [...r.activity, { at: TODAY, atRaw: iso(TODAY), text, channel: null }];
+  const at = activityNow();
+  return [...r.activity, { at, atRaw: isoDateTime(at), text, channel: null }];
 }
 
 function parseDate(raw: string | null): Date | null {

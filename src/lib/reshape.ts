@@ -13,6 +13,10 @@ function parseDate(s: string | null): Date | null {
   return s ? new Date(`${s}T00:00:00Z`) : null;
 }
 
+function parseActivityDate(s: string): Date {
+  return new Date(s.includes("T") ? s : `${s}T00:00:00Z`);
+}
+
 /**
  * Light, honest channel inference — only when the activity text clearly implies
  * a channel (Andco's product surfaces these prominently). Returns null otherwise;
@@ -31,7 +35,7 @@ function inferChannel(text: string): Channel | null {
 
 function reshapeActivity(raw: RawActivityEntry): ActivityEntry {
   return {
-    at: new Date(`${raw.at}T00:00:00Z`),
+    at: parseActivityDate(raw.at),
     atRaw: raw.at,
     text: raw.text,
     channel: inferChannel(raw.text),

@@ -128,29 +128,35 @@ export function reducer(state: AppState, action: Action): AppState {
         })),
       };
 
-    case "CREATE_DRAFT":
+    case "AUTOSAVE_DRAFT":
       return {
         ...state,
         phase: "ready",
-        composingDraft: false,
-        selectedId: action.id,
-        history: snapshot(state, "Draft saved", [action.id], { includeMissing: true }),
-        requests: [
-          ...state.requests,
-          requestFromDraftPayload(action.id, action.payload, "draft"),
-        ],
+        requests: state.requests.some((r) => r.id === action.id)
+          ? patch(state.requests, action.id, (r) =>
+              r.status === "draft"
+                ? requestFromDraftPayload(action.id, action.payload, "draft", r)
+                : r,
+            )
+          : [
+              ...state.requests,
+              requestFromDraftPayload(action.id, action.payload, "draft"),
+            ],
       };
 
-    case "UPDATE_DRAFT":
+    case "DELETE_DRAFT": {
+      const draft = state.requests.find((r) => r.id === action.id);
+      if (draft?.status !== "draft") return state;
+      const requests = state.requests.filter((r) => r.id !== action.id);
       return {
         ...state,
+        phase: requests.length ? "ready" : "empty",
         composingDraft: false,
-        selectedId: action.id,
-        history: snapshot(state, "Draft saved", [action.id]),
-        requests: patch(state.requests, action.id, (r) =>
-          requestFromDraftPayload(action.id, action.payload, "draft", r),
-        ),
+        selectedId: state.selectedId === action.id ? null : state.selectedId,
+        history: snapshot(state, "Draft deleted", [action.id]),
+        requests,
       };
+    }
 
     case "SUBMIT_DRAFT":
       return {
@@ -211,13 +217,20 @@ export function reducer(state: AppState, action: Action): AppState {
     case "UNDO": {
       if (state.history.length === 0) return state;
       const last = state.history[state.history.length - 1];
-      const requests = state.requests.flatMap((r) => {
+      const patched = state.requests.flatMap((r) => {
         if (!(r.id in last.before)) return [r];
         const before = last.before[r.id];
         return before ? [before] : [];
       });
+      const requests = [
+        ...patched,
+        ...Object.entries(last.before).flatMap(([id, before]) =>
+          before && !patched.some((r) => r.id === id) ? [before] : [],
+        ),
+      ];
       return {
         ...state,
+        phase: requests.length ? "ready" : "empty",
         requests,
         selectedId:
           state.selectedId && requests.some((r) => r.id === state.selectedId)

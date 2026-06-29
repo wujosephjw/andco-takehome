@@ -17,6 +17,10 @@ function useDrawerViewport() {
   return isDrawerViewport;
 }
 
+function detailLabel(request: Request): string {
+  return request.documentType.trim() || "Untitled request";
+}
+
 /**
  * Mobile/tablet detail: a slide-in overlay (hidden at lg+, where the persistent
  * DetailPane column takes over). Both are driven by the same selectedId.
@@ -118,7 +122,7 @@ export function DetailDrawer({
           shown?.kind === "draft"
             ? "Draft request"
             : shown?.request
-              ? shown.request.documentType
+              ? detailLabel(shown.request)
               : "Request details"
         }
         tabIndex={-1}
@@ -130,7 +134,8 @@ export function DetailDrawer({
             request={shown.request}
             caseData={caseData}
             onCancel={onClose}
-            onSaveDraft={handlers.onSaveDraft}
+            onAutosaveDraft={handlers.onAutosaveDraft}
+            onDeleteDraft={handlers.onDeleteDraft}
             onSubmitDraft={handlers.onSubmitDraft}
           />
         ) : shown?.request ? (

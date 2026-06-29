@@ -134,15 +134,16 @@ export function Tracker() {
     });
   }
 
-  function saveDraft(id: string | null, payload: DraftRequestPayload) {
+  function autosaveDraft(id: string | null, payload: DraftRequestPayload) {
     const draftId = id ?? nextLocalRequestId(requests);
-    mutate(
-      id
-        ? { type: "UPDATE_DRAFT", id: draftId, payload }
-        : { type: "CREATE_DRAFT", id: draftId, payload },
-      "Draft saved",
-    );
-    revealBucket("draft");
+    dispatch({ type: "AUTOSAVE_DRAFT", id: draftId, payload });
+    return draftId;
+  }
+
+  function deleteDraft(id: string) {
+    const request = requests.find((r) => r.id === id);
+    if (request?.status !== "draft") return;
+    mutate({ type: "DELETE_DRAFT", id }, "Draft deleted");
   }
 
   function submitDraft(id: string | null, payload: DraftRequestPayload) {
@@ -154,7 +155,8 @@ export function Tracker() {
   const detailHandlers = {
     onResolve: resolveRequest,
     onMarkReceived: markReceived,
-    onSaveDraft: saveDraft,
+    onAutosaveDraft: autosaveDraft,
+    onDeleteDraft: deleteDraft,
     onSubmitDraft: submitDraft,
     onFollowUp: (id: string) => mutate({ type: "FOLLOW_UP", id }, "Follow-up logged"),
     onAddNote: (id: string, text: string) => mutate({ type: "ADD_NOTE", id, text }, "Note added"),

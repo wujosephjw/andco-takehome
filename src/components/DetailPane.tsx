@@ -26,7 +26,8 @@ export function DetailPane({
           request={draftRequest}
           caseData={caseData}
           onCancel={onClose}
-          onSaveDraft={handlers.onSaveDraft}
+          onAutosaveDraft={handlers.onAutosaveDraft}
+          onDeleteDraft={handlers.onDeleteDraft}
           onSubmitDraft={handlers.onSubmitDraft}
         />
       ) : request ? (

@@ -77,7 +77,7 @@ function Footer({
       </Button>
     ) : null;
 
-  const showFollow = bucket === "needs_you" || bucket === "in_flight" || bucket === "draft";
+  const showFollow = bucket === "needs_you" || bucket === "in_flight";
   if (!primary && !showFollow) return null;
 
   return (

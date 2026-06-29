@@ -48,6 +48,19 @@ function appendActivity(r: Request, text: string): ActivityEntry[] {
   return [...r.activity, { at: TODAY, atRaw: iso(TODAY), text, channel: null }];
 }
 
+function resolvedActivityText(r: Request): string {
+  switch (r.status) {
+    case "needs_action":
+      return "Re-sent signed authorization to source";
+    case "rejected":
+      return "Confirmed claim number with adjuster";
+    case "on_hold":
+      return "Approved $35 prepayment";
+    default:
+      return "Marked resolved";
+  }
+}
+
 function assertNever(x: never): never {
   throw new Error(`Unhandled action: ${JSON.stringify(x)}`);
 }
@@ -72,7 +85,7 @@ export function reducer(state: AppState, action: Action): AppState {
           attentionReason: null,
           updatedAt: TODAY,
           updatedAtRaw: iso(TODAY),
-          activity: appendActivity(r, "Marked resolved — re-submitted to source"),
+          activity: appendActivity(r, resolvedActivityText(r)),
         })),
       };
 

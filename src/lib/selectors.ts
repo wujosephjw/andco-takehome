@@ -3,21 +3,12 @@ import { bucketForStatus, BUCKET_ORDER } from "./bucket";
 import { isBlockedOnUs, isOverdue, daysOverdue, isStale } from "./derive";
 import type { Request, Bucket, Category } from "./types";
 
-/* ───────────────── Needs-you (the pinned zone) ───────────────── */
-
 function urgencyRank(r: Request, now: Date): number {
   let score = 0;
   if (isBlockedOnUs(r)) score += 10_000; // our move beats their delay
   score += daysOverdue(r, now); // then by how overdue
   if (isStale(r, now)) score += 50; // nudge stale-but-not-blocked up
   return score;
-}
-
-/** Exactly the blocked-on-us items, most urgent first. */
-export function selectNeedsYou(requests: Request[], now: Date = TODAY): Request[] {
-  return requests
-    .filter((r) => isBlockedOnUs(r))
-    .sort((a, b) => urgencyRank(b, now) - urgencyRank(a, now));
 }
 
 /* ───────────────── Overview counts (the light strip) ───────────────── */
@@ -117,17 +108,4 @@ export function selectFiltered(
     return true;
   });
   return [...filtered].sort(comparator(sort, now)); // copy → never mutate input
-}
-
-/** How many requests a bucket filter would show (drives the filter chips). */
-export function countByBucket(requests: Request[]): Record<Bucket, number> {
-  const counts: Record<Bucket, number> = {
-    needs_you: 0,
-    in_flight: 0,
-    done: 0,
-    draft: 0,
-    closed: 0,
-  };
-  for (const r of requests) counts[bucketForStatus(r.status)]++;
-  return counts;
 }

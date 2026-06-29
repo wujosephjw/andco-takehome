@@ -1,4 +1,4 @@
-import type { Case, Request } from "@/lib/types";
+import type { Case, DraftRequestPayload, Request } from "@/lib/types";
 import type { FilterSpec, SortKey } from "@/lib/selectors";
 
 export type Action =
@@ -6,11 +6,15 @@ export type Action =
   | { type: "LOADED"; case: Case; requests: Request[] }
   // data mutations (each pushes an undo snapshot)
   | { type: "RESOLVE_NEEDS_ACTION"; id: string }
+  | { type: "CREATE_DRAFT"; id: string; payload: DraftRequestPayload }
+  | { type: "UPDATE_DRAFT"; id: string; payload: DraftRequestPayload }
+  | { type: "SUBMIT_DRAFT"; id: string; payload: DraftRequestPayload }
   | { type: "MARK_RECEIVED"; id: string }
   | { type: "ADD_NOTE"; id: string; text: string }
   | { type: "FOLLOW_UP"; id: string }
   | { type: "UNDO" }
   // pure UI (never pushes undo history)
+  | { type: "OPEN_NEW_DRAFT" }
   | { type: "SET_FILTER"; filter: Partial<FilterSpec> }
   | { type: "SET_SORT"; sort: SortKey }
   | { type: "OPEN_DRAWER"; id: string }

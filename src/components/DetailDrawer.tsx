@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import type { Request } from "@/lib/types";
+import type { Case, Request } from "@/lib/types";
+import { DraftRequestForm } from "./DraftRequestForm";
 import { RequestDetail, type DetailHandlers } from "./RequestDetail";
 
 function useDrawerViewport() {
@@ -21,16 +22,44 @@ function useDrawerViewport() {
  * DetailPane column takes over). Both are driven by the same selectedId.
  */
 export function DetailDrawer({
+  caseData,
   request,
+  composingDraft,
   onClose,
   ...handlers
-}: { request: Request | null; onClose: () => void } & DetailHandlers) {
+}: {
+  caseData: Case;
+  request: Request | null;
+  composingDraft: boolean;
+  onClose: () => void;
+} & DetailHandlers) {
   const isDrawerViewport = useDrawerViewport();
-  const open = request !== null && isDrawerViewport;
+  const draftRequest = request?.status === "draft" ? request : null;
+  const showDraft = composingDraft || draftRequest !== null;
+  const contentKey = showDraft ? (draftRequest?.id ?? "new-draft") : request?.id;
+  const current =
+    contentKey === undefined
+      ? null
+      : showDraft
+        ? { kind: "draft" as const, key: contentKey, request: draftRequest }
+        : { kind: "request" as const, key: contentKey, request };
+  const open = current !== null && isDrawerViewport;
 
   // Keep last content visible during the close transition.
-  const [shown, setShown] = useState<Request | null>(request);
-  if (request !== null && request !== shown) setShown(request);
+  const [shown, setShown] = useState<{
+    kind: "draft" | "request";
+    key: string;
+    request: Request | null;
+  } | null>(current);
+  if (
+    current !== null &&
+    (shown === null ||
+      current.key !== shown.key ||
+      current.kind !== shown.kind ||
+      current.request !== shown.request)
+  ) {
+    setShown(current);
+  }
 
   const panelRef = useRef<HTMLDivElement>(null);
   const prevFocus = useRef<HTMLElement | null>(null);
@@ -85,11 +114,28 @@ export function DetailDrawer({
         ref={panelRef}
         role="dialog"
         aria-modal="true"
-        aria-label={shown ? shown.documentType : "Request details"}
+        aria-label={
+          shown?.kind === "draft"
+            ? "Draft request"
+            : shown?.request
+              ? shown.request.documentType
+              : "Request details"
+        }
         tabIndex={-1}
         className={`absolute right-0 top-0 flex h-full w-[440px] max-w-[92vw] flex-col border-l border-white/60 bg-glass-strong shadow-drawer backdrop-blur-2xl outline-none transition-transform duration-500 ease-[var(--ease-liquid)] ${open ? "translate-x-0" : "translate-x-full"}`}
       >
-        {shown && <RequestDetail request={shown} onClose={onClose} {...handlers} />}
+        {shown?.kind === "draft" ? (
+          <DraftRequestForm
+            key={shown.request?.id ?? "new-draft"}
+            request={shown.request}
+            caseData={caseData}
+            onCancel={onClose}
+            onSaveDraft={handlers.onSaveDraft}
+            onSubmitDraft={handlers.onSubmitDraft}
+          />
+        ) : shown?.request ? (
+          <RequestDetail request={shown.request} onClose={onClose} {...handlers} />
+        ) : null}
       </div>
     </div>
   );

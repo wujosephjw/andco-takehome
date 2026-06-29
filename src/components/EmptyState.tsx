@@ -8,9 +8,11 @@ import { Button } from "./Button";
 export function EmptyState({
   variant,
   onClearFilters,
+  onNewRequest,
 }: {
   variant: "no-data" | "filtered";
   onClearFilters?: () => void;
+  onNewRequest?: () => void;
 }) {
   if (variant === "filtered") {
     return (
@@ -38,7 +40,7 @@ export function EmptyState({
         When you request records, they&rsquo;ll appear here, sorted by what needs
         you first.
       </p>
-      <Button className="mt-1">New request</Button>
+      <Button className="mt-1" onClick={onNewRequest}>New request</Button>
     </div>
   );
 }

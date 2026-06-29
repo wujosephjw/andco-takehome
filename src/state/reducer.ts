@@ -1,13 +1,13 @@
 import { TODAY, iso } from "@/lib/clock";
 import { resolvedActivityFor } from "@/lib/nextAction";
 import { DEFAULT_FILTER, type FilterSpec, type SortKey } from "@/lib/selectors";
-import type { Request, Case, ActivityEntry } from "@/lib/types";
+import type { Request, Case, ActivityEntry, DraftRequestPayload, Status } from "@/lib/types";
 import type { Action } from "./actions";
 
 export interface UndoEntry {
   label: string;
-  /** Prior value of just the touched request(s), keyed by id — a precise, cheap snapshot. */
-  before: Record<string, Request>;
+  /** Prior value of just the touched request(s); null means the request was created locally. */
+  before: Record<string, Request | null>;
 }
 
 export interface AppState {
@@ -17,6 +17,7 @@ export interface AppState {
   filter: FilterSpec;
   sort: SortKey;
   selectedId: string | null;
+  composingDraft: boolean;
   history: UndoEntry[];
 }
 
@@ -27,16 +28,23 @@ export const initialState: AppState = {
   filter: DEFAULT_FILTER,
   sort: "urgency",
   selectedId: null,
+  composingDraft: false,
   history: [],
 };
 
 const HISTORY_CAP = 10;
 
-function snapshot(state: AppState, label: string, ids: string[]): UndoEntry[] {
-  const before: Record<string, Request> = {};
+function snapshot(
+  state: AppState,
+  label: string,
+  ids: string[],
+  { includeMissing = false }: { includeMissing?: boolean } = {},
+): UndoEntry[] {
+  const before: Record<string, Request | null> = {};
   for (const id of ids) {
     const r = state.requests.find((x) => x.id === id);
     if (r) before[id] = r; // requests are immutable-by-convention → safe to alias
+    else if (includeMissing) before[id] = null;
   }
   return [...state.history, { label, before }].slice(-HISTORY_CAP);
 }
@@ -47,6 +55,48 @@ function patch(requests: Request[], id: string, fn: (r: Request) => Request): Re
 
 function appendActivity(r: Request, text: string): ActivityEntry[] {
   return [...r.activity, { at: TODAY, atRaw: iso(TODAY), text, channel: null }];
+}
+
+function parseDate(raw: string | null): Date | null {
+  return raw ? new Date(`${raw}T00:00:00Z`) : null;
+}
+
+function requestFromDraftPayload(
+  id: string,
+  payload: DraftRequestPayload,
+  status: Extract<Status, "draft" | "in_progress">,
+  existing?: Request,
+): Request {
+  const submitted = status === "in_progress";
+  const baseActivity = existing?.activity ?? [];
+  return {
+    id,
+    category: payload.category,
+    documentType: payload.documentType,
+    source: payload.source,
+    status,
+    assignee: payload.assignee,
+    requestedAt: submitted ? TODAY : null,
+    requestedAtRaw: submitted ? iso(TODAY) : null,
+    dueAt: parseDate(payload.dueAtRaw),
+    dueAtRaw: payload.dueAtRaw,
+    updatedAt: TODAY,
+    updatedAtRaw: iso(TODAY),
+    pagesReceived: existing?.pagesReceived ?? null,
+    pagesExpected: payload.pagesExpected,
+    attentionReason: null,
+    activity: submitted
+      ? [
+          ...baseActivity,
+          {
+            at: TODAY,
+            atRaw: iso(TODAY),
+            text: "Submitted draft request - moved to In progress",
+            channel: null,
+          },
+        ]
+      : baseActivity,
+  };
 }
 
 function assertNever(x: never): never {
@@ -66,6 +116,7 @@ export function reducer(state: AppState, action: Action): AppState {
     case "RESOLVE_NEEDS_ACTION":
       return {
         ...state,
+        composingDraft: false,
         history: snapshot(state, "Moved to In progress", [action.id]),
         requests: patch(state.requests, action.id, (r) => ({
           ...r,
@@ -77,9 +128,51 @@ export function reducer(state: AppState, action: Action): AppState {
         })),
       };
 
+    case "CREATE_DRAFT":
+      return {
+        ...state,
+        phase: "ready",
+        composingDraft: false,
+        selectedId: action.id,
+        history: snapshot(state, "Draft saved", [action.id], { includeMissing: true }),
+        requests: [
+          ...state.requests,
+          requestFromDraftPayload(action.id, action.payload, "draft"),
+        ],
+      };
+
+    case "UPDATE_DRAFT":
+      return {
+        ...state,
+        composingDraft: false,
+        selectedId: action.id,
+        history: snapshot(state, "Draft saved", [action.id]),
+        requests: patch(state.requests, action.id, (r) =>
+          requestFromDraftPayload(action.id, action.payload, "draft", r),
+        ),
+      };
+
+    case "SUBMIT_DRAFT":
+      return {
+        ...state,
+        phase: "ready",
+        composingDraft: false,
+        selectedId: action.id,
+        history: snapshot(state, "Submitted request", [action.id], { includeMissing: true }),
+        requests: state.requests.some((r) => r.id === action.id)
+          ? patch(state.requests, action.id, (r) =>
+              requestFromDraftPayload(action.id, action.payload, "in_progress", r),
+            )
+          : [
+              ...state.requests,
+              requestFromDraftPayload(action.id, action.payload, "in_progress"),
+            ],
+      };
+
     case "MARK_RECEIVED":
       return {
         ...state,
+        composingDraft: false,
         history: snapshot(state, "Moved to Collected", [action.id]),
         requests: patch(state.requests, action.id, (r) => ({
           ...r,
@@ -118,22 +211,34 @@ export function reducer(state: AppState, action: Action): AppState {
     case "UNDO": {
       if (state.history.length === 0) return state;
       const last = state.history[state.history.length - 1];
+      const requests = state.requests.flatMap((r) => {
+        if (!(r.id in last.before)) return [r];
+        const before = last.before[r.id];
+        return before ? [before] : [];
+      });
       return {
         ...state,
-        requests: state.requests.map((r) => last.before[r.id] ?? r),
+        requests,
+        selectedId:
+          state.selectedId && requests.some((r) => r.id === state.selectedId)
+            ? state.selectedId
+            : null,
+        composingDraft: false,
         history: state.history.slice(0, -1),
       };
     }
 
     // UI actions never touch history — undo reverts data, not drawer/filter state.
+    case "OPEN_NEW_DRAFT":
+      return { ...state, selectedId: null, composingDraft: true };
     case "SET_FILTER":
       return { ...state, filter: { ...state.filter, ...action.filter } };
     case "SET_SORT":
       return { ...state, sort: action.sort };
     case "OPEN_DRAWER":
-      return { ...state, selectedId: action.id };
+      return { ...state, selectedId: action.id, composingDraft: false };
     case "CLOSE_DRAWER":
-      return { ...state, selectedId: null };
+      return { ...state, selectedId: null, composingDraft: false };
 
     default:
       return assertNever(action);

@@ -66,13 +66,12 @@ in the overview strip.
 
 ## What I'd do next / what I cut
 
-- **Cut:** the real draft-submission flow (`req_011` shows the entry point, but
-  "New request" is a stub), category filtering (bucket pills + sort cover it),
-  dark mode, keyboard nav beyond the drawer's focus trap.
+- **Cut:** backend persistence, file uploads/templates, dark mode, and heavier
+  keyboard navigation; the draft composer stays intentionally local and compact.
 - **Next:** with a backend, the fixture import becomes a fetch and the modeled
   `loading` state becomes a real Suspense boundary; a server/presentational RSC
   split if the tree grows; an "assigned to me" lens (the data has two paralegals);
-  the full draft-creation flow.
+  richer request templates if the draft workflow grows.
 
 ## Where I used AI (and steered it)
 

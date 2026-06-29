@@ -27,11 +27,11 @@ export function UndoToast({
     <div
       role="status"
       aria-live="polite"
-      className="fixed inset-x-0 bottom-6 z-50 flex justify-center px-4"
+      className="pointer-events-none fixed inset-x-0 bottom-6 z-50 flex justify-center px-4"
     >
       <div
         key={toast.id}
-        className="relative flex items-center gap-3 overflow-hidden rounded-full bg-ink py-2.5 pl-4 pr-3 shadow-toast"
+        className="pointer-events-auto relative flex items-center gap-3 overflow-hidden rounded-full bg-ink py-2.5 pl-4 pr-3 shadow-toast"
       >
         <span className="text-meta text-surface/85">{toast.label}</span>
         <button

@@ -104,6 +104,20 @@ function assertNever(x: never): never {
   throw new Error(`Unhandled action: ${JSON.stringify(x)}`);
 }
 
+function applyFilterPatch(filter: FilterSpec, patch: Partial<FilterSpec>): FilterSpec {
+  const next = { ...filter, ...patch };
+
+  if (patch.bucket) {
+    return { ...next, category: null };
+  }
+
+  if (patch.category) {
+    return { ...next, bucket: null, includeCanceled: false };
+  }
+
+  return next;
+}
+
 export function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
     case "LOADED":
@@ -246,7 +260,7 @@ export function reducer(state: AppState, action: Action): AppState {
     case "OPEN_NEW_DRAFT":
       return { ...state, selectedId: null, composingDraft: true };
     case "SET_FILTER":
-      return { ...state, filter: { ...state.filter, ...action.filter } };
+      return { ...state, filter: applyFilterPatch(state.filter, action.filter) };
     case "SET_SORT":
       return { ...state, sort: action.sort };
     case "OPEN_DRAWER":

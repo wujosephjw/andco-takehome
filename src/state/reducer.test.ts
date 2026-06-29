@@ -132,3 +132,41 @@ describe("reducer draft experience", () => {
     );
   });
 });
+
+describe("reducer filter state", () => {
+  it("clears category when selecting a status bucket", () => {
+    const state = {
+      ...readyState([makeRequest()]),
+      filter: { bucket: null, category: "medical", includeCanceled: false },
+    } satisfies AppState;
+
+    const next = reducer(state, {
+      type: "SET_FILTER",
+      filter: { bucket: "needs_you", includeCanceled: false },
+    });
+
+    expect(next.filter).toEqual({
+      bucket: "needs_you",
+      category: null,
+      includeCanceled: false,
+    });
+  });
+
+  it("clears status and canceled visibility when selecting a category", () => {
+    const state = {
+      ...readyState([makeRequest()]),
+      filter: { bucket: "closed", category: null, includeCanceled: true },
+    } satisfies AppState;
+
+    const next = reducer(state, {
+      type: "SET_FILTER",
+      filter: { category: "insurance" },
+    });
+
+    expect(next.filter).toEqual({
+      bucket: null,
+      category: "insurance",
+      includeCanceled: false,
+    });
+  });
+});

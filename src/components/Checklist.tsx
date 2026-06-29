@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import type { Request, Bucket, Case, Status } from "@/lib/types";
+import type { Request, Bucket, Case } from "@/lib/types";
 import type { FilterSpec, SortKey, OverviewCounts } from "@/lib/selectors";
 import { BUCKET_LABEL } from "@/lib/bucket";
 import { resolveLabelFor } from "@/lib/nextAction";
@@ -62,33 +62,15 @@ function DocTitle({ r, className }: { r: Request; className?: string }) {
   );
 }
 
-/** Statuses whose word would just echo the section header, so the grouping
- *  already says it: `in_progress` under "In progress", `received` under
- *  "Collected", `draft`/`canceled` under their own sections. Every other status
- *  (requested, partial, needs-action, rejected, on-hold) is a distinct sub-state
- *  worth surfacing. Relies on items always being rendered grouped by bucket. */
-const STATUS_ECHOES_SECTION = new Set<Status>([
-  "in_progress",
-  "received",
-  "draft",
-  "canceled",
-]);
-
 /** The quiet line under a title, state-first: the raw status leads in a legible
  *  weight so every item's state reads at a glance ("think in states"), then the
- *  source. The status word is dropped only where it would just echo the section
- *  header. Category isn't here — it rides in the right meta cluster next to the
+ *  source. Category isn't here — it rides in the right meta cluster next to the
  *  date. */
 function SupportLine({ r }: { r: Request }) {
-  const showStatus = !STATUS_ECHOES_SECTION.has(r.status);
   return (
     <span className="mt-0.5 flex min-w-0 items-center gap-1.5 text-meta text-ink-faint">
-      {showStatus && (
-        <>
-          <span className="shrink-0 font-medium italic text-ink-muted">{rawStatusLabel[r.status]}</span>
-          <span className="shrink-0" aria-hidden="true">·</span>
-        </>
-      )}
+      <span className="shrink-0 font-medium italic text-ink-muted">{rawStatusLabel[r.status]}</span>
+      <span className="shrink-0" aria-hidden="true">·</span>
       <span className="truncate text-ink-muted">{displaySource(r)}</span>
     </span>
   );

@@ -126,14 +126,6 @@ export function Tracker() {
     mutate({ type: "MARK_RECEIVED", id }, "Moved to Collected");
   }
 
-  function revealBucket(bucket: Bucket) {
-    setQuery("");
-    dispatch({
-      type: "SET_FILTER",
-      filter: { bucket, category: null, includeCanceled: false },
-    });
-  }
-
   function autosaveDraft(id: string | null, payload: DraftRequestPayload) {
     const draftId = id ?? nextLocalRequestId(requests);
     dispatch({ type: "AUTOSAVE_DRAFT", id: draftId, payload });
@@ -149,7 +141,6 @@ export function Tracker() {
   function submitDraft(id: string | null, payload: DraftRequestPayload) {
     const draftId = id ?? nextLocalRequestId(requests);
     mutate({ type: "SUBMIT_DRAFT", id: draftId, payload }, "Submitted request - In progress");
-    revealBucket("in_flight");
   }
 
   const detailHandlers = {
